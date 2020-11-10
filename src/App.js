@@ -12,9 +12,13 @@ function App() {
     lastName: '',
     email: '',
     shopifyId: '',
+    amount: ' ',
   });
+
+  const [amount, setAmount] = useState('');
+
   const [shopid, setShopID] = useState();
-  console.log(process.env.REACT_APP_USERNAME);
+
   const proxyurl = 'https://cors-anywhere.herokuapp.com/';
   // const proxyurl = 'https://cors-proxy.htmldriven.com/?url=';
   useEffect(() => {
@@ -45,7 +49,7 @@ function App() {
 
   const retriveMe = async (userID) => {
     const request = await axios.request({
-      url: `/customer/${userID}`,
+      url: `/customer/${userID}/account`,
       method: 'GET',
       baseURL: proxyurl + 'https://api.rewardify.ca',
       headers: {
@@ -56,17 +60,36 @@ function App() {
     const res = await request.data;
     console.log('retrieveme', res);
     setUser({
-      firstName: res.firstName,
-      lastName: res.lastName,
-      email: res.email,
-      shopifyId: res.shopifyId,
+      firstName: res.customer.firstName,
+      lastName: res.customer.lastName,
+      email: res.customer.email,
+      shopifyId: res.customer.shopifyId,
+      amount: res.amount,
     });
   };
 
   const TokenTag = ({ token, expiration }) => {
     return <p>Bearer: {token} </p>;
   };
-
+  const changeAmount = async (value, userID) => {
+    const request = await axios.request({
+      url: `/customer/${userID}/account/credit`,
+      method: 'PUT',
+      baseURL: proxyurl + 'https://api.rewardify.ca',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      data: {
+        email: user.email,
+        amount: value,
+        memo: 'hello',
+        expiresAt: '2021-05-05T10:21:05.349Z',
+      },
+    });
+    const res = request.data;
+    console.log('changeAmount', res);
+  };
   return (
     <div>
       <TokenTag token={token} expiration={expiration} />
@@ -78,6 +101,15 @@ function App() {
       <button onClick={() => retriveMe(shopid)}>Retrieve User</button>
       <div>{JSON.stringify(user, null, 4)}</div>
       <p>shopifyId: {shopid}</p>
+      <div>
+        <input
+          type="text"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
+        <button onClick={() => changeAmount(amount, shopid)}>Set Amount</button>
+        <p>amount: {user.amount}</p>
+      </div>
     </div>
   );
 }
