@@ -1,6 +1,6 @@
-import React, { useState, useEffect, cloneElement } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box } from '@chakra-ui/core';
+
 import './App.css';
 require('dotenv').config();
 
@@ -13,7 +13,7 @@ function App() {
     email: '',
     shopifyId: '',
   });
-  const [id, setID] = useState();
+  const [shopid, setShopID] = useState();
 
   const proxyurl = 'https://cors-anywhere.herokuapp.com/';
   // const proxyurl = 'https://cors-proxy.htmldriven.com/?url=';
@@ -42,12 +42,9 @@ function App() {
     };
     retrieveToken();
   }, []);
-  console.log('state token', token);
 
   const retriveMe = async (userID) => {
-    console.log('retriving user data', userID);
-
-    const customer = await axios.request({
+    const request = await axios.request({
       url: `/customer/${userID}`,
       method: 'GET',
       baseURL: proxyurl + 'https://api.rewardify.ca',
@@ -56,18 +53,14 @@ function App() {
         authorization: `Bearer ${token}`,
       },
     });
-    console.log('retrieving user', customer);
+    const res = await request.data;
+    console.log('retrieveme', res);
     setUser({
-      firstName: customer.data.firstName,
-      lastName: customer.data.lastName,
-      email: customer.data.email,
-      shopifyId: customer.data.shopifyId,
+      firstName: res.firstName,
+      lastName: res.lastName,
+      email: res.email,
+      shopifyId: res.shopifyId,
     });
-  };
-
-  const handleChange = (e) => {
-    setID(e);
-    console.log(e);
   };
 
   const TokenTag = ({ token, expiration }) => {
@@ -75,17 +68,17 @@ function App() {
   };
 
   return (
-    <Box>
+    <div>
       <TokenTag token={token} expiration={expiration} />
       <input
         type="text"
-        value={id}
-        onChange={(e) => handleChange(e.target.value)}
+        value={shopid}
+        onChange={(e) => setShopID(e.target.value)}
       />
-      <button onClick={(id) => retriveMe(id)}>Retrieve User</button>
+      <button onClick={() => retriveMe(shopid)}>Retrieve User</button>
       <div>{JSON.stringify(user, null, 4)}</div>
-      <p>shopifyId: {id}</p>
-    </Box>
+      <p>shopifyId: {shopid}</p>
+    </div>
   );
 }
 export default App;
