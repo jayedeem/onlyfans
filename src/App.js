@@ -14,7 +14,7 @@ function App() {
     shopifyId: '',
   });
   const [shopid, setShopID] = useState();
-
+  console.log(process.env.REACT_APP_USERNAME);
   const proxyurl = 'https://cors-anywhere.herokuapp.com/';
   // const proxyurl = 'https://cors-proxy.htmldriven.com/?url=';
   useEffect(() => {
@@ -26,8 +26,8 @@ function App() {
           baseURL: proxyurl + 'https://api.rewardify.ca',
           headers: { 'Content-Type': 'application/json' },
           auth: {
-            username: '329_31jdtl1jkc8w0gwso0gc0co8k8g0kokw484wgwcggsw4s8ko8c',
-            password: '51mvdq0ohbwgowkoooww40o88scwgw40gos8ogk4okck0w0gg',
+            username: process.env.REACT_APP_USERNAME,
+            password: process.env.REACT_APP_PASSWORD,
           },
           data: {
             grant_type: 'client_credentials',
