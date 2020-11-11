@@ -16,8 +16,10 @@ function App() {
   });
 
   const [amount, setAmount] = useState('');
-
+  const [replaceCredit, setReplaceCredit] = useState(0);
   const [shopid, setShopID] = useState();
+
+  //3577057411203
 
   const proxyurl = 'https://cors-anywhere.herokuapp.com/';
   // const proxyurl = 'https://cors-proxy.htmldriven.com/?url=';
@@ -47,7 +49,7 @@ function App() {
     retrieveToken();
   }, []);
 
-  const retriveMe = async (userID) => {
+  const retrieveMe = async (userID) => {
     const request = await axios.request({
       url: `/customer/${userID}/account`,
       method: 'GET',
@@ -68,9 +70,6 @@ function App() {
     });
   };
 
-  const TokenTag = ({ token, expiration }) => {
-    return <p>Bearer: {token} </p>;
-  };
   const changeAmount = async (value, userID) => {
     const request = await axios.request({
       url: `/customer/${userID}/account/credit`,
@@ -90,15 +89,33 @@ function App() {
     const res = request.data;
     console.log('changeAmount', res);
   };
+  const replaceAmount = async (value, userID) => {
+    const request = await axios.request({
+      url: `/customer/${userID}/account/debit`,
+      method: 'PUT',
+      baseURL: proxyurl + 'https://api.rewardify.ca',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      data: {
+        email: user.email,
+        amount: value,
+        memo: 'hello',
+        expiresAt: '2021-05-05T10:21:05.349Z',
+      },
+    });
+    const res = request.data;
+    console.log('changeAmount', res);
+  };
   return (
     <div>
-      <TokenTag token={token} expiration={expiration} />
       <input
         type="text"
         value={shopid}
         onChange={(e) => setShopID(e.target.value)}
       />
-      <button onClick={() => retriveMe(shopid)}>Retrieve User</button>
+      <button onClick={() => retrieveMe(shopid)}>Retrieve User</button>
       <div>{JSON.stringify(user, null, 4)}</div>
       <p>shopifyId: {shopid}</p>
       <div>
@@ -109,6 +126,19 @@ function App() {
         />
         <button onClick={() => changeAmount(amount, shopid)}>Set Amount</button>
         <p>amount: {user.amount}</p>
+        <p>state amount: {amount}</p>
+      </div>
+      <div>
+        <input
+          type="text"
+          value={replaceCredit}
+          onChange={(e) => setReplaceCredit(e.target.value)}
+        />
+        <button onClick={() => replaceAmount(amount, shopid)}>
+          Replace Amount
+        </button>
+
+        <p>state amount: {replaceCredit}</p>
       </div>
     </div>
   );
