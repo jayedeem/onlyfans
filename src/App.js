@@ -71,42 +71,51 @@ function App() {
   };
 
   const changeAmount = async (value, userID) => {
-    const request = await axios.request({
-      url: `/customer/${userID}/account/credit`,
-      method: 'PUT',
-      baseURL: proxyurl + 'https://api.rewardify.ca',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: `Bearer ${token}`,
-      },
-      data: {
-        email: user.email,
-        amount: value,
-        memo: 'hello',
-        expiresAt: '2021-05-05T10:21:05.349Z',
-      },
-    });
-    const res = request.data;
-    console.log('changeAmount', res);
+    try {
+      const request = await axios.request({
+        url: `/customer/${userID}/account/credit`,
+        method: 'PUT',
+        baseURL: proxyurl + 'https://api.rewardify.ca',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+        data: {
+          email: user.email,
+          amount: value,
+          memo: 'hello',
+        },
+      });
+      const res = request.data;
+      console.log('changeAmount', res);
+      retrieveMe(userID);
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   const replaceAmount = async (value, userID) => {
-    const request = await axios.request({
-      url: `/customer/${userID}/account/debit`,
-      method: 'PUT',
-      baseURL: proxyurl + 'https://api.rewardify.ca',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: `Bearer ${token}`,
-      },
-      data: {
-        email: user.email,
-        amount: value,
-        memo: 'hello',
-        expiresAt: '2021-05-05T10:21:05.349Z',
-      },
-    });
-    const res = request.data;
-    console.log('changeAmount', res);
+    try {
+      const request = await axios.request({
+        url: `/customer/${userID}/account/reset`,
+        method: 'PUT',
+        baseURL: proxyurl + 'https://api.rewardify.ca',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+        data: {
+          email: user.email,
+          amount: value,
+          memo: 'hello',
+        },
+      });
+      const res = request.data;
+      console.log('changeAmount', res);
+      retrieveMe(userID);
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div>
@@ -116,7 +125,6 @@ function App() {
         onChange={(e) => setShopID(e.target.value)}
       />
       <button onClick={() => retrieveMe(shopid)}>Retrieve User</button>
-      <div>{JSON.stringify(user, null, 4)}</div>
       <p>shopifyId: {shopid}</p>
       <div>
         <input
@@ -134,12 +142,13 @@ function App() {
           value={replaceCredit}
           onChange={(e) => setReplaceCredit(e.target.value)}
         />
-        <button onClick={() => replaceAmount(amount, shopid)}>
+        <button onClick={() => replaceAmount(replaceCredit, shopid)}>
           Replace Amount
         </button>
 
         <p>state amount: {replaceCredit}</p>
       </div>
+      <div style={{ marginTop: '52px' }}>{JSON.stringify(user, null, 4)}</div>
     </div>
   );
 }
