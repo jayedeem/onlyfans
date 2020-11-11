@@ -4,25 +4,17 @@ import axios from 'axios';
 import './App.css';
 require('dotenv').config();
 
-function App() {
+const App = () => {
   const [token, setToken] = useState();
   const [expiration, setExpiration] = useState();
-  const [user, setUser] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    shopifyId: '',
-    amount: ' ',
-  });
-
+  const [user, setUser] = useState([]);
   const [amount, setAmount] = useState('');
-  const [replaceCredit, setReplaceCredit] = useState(0);
+  const [replaceCredit, setReplaceCredit] = useState(null);
   const [shopid, setShopID] = useState();
-
-  //3577057411203
+  const [isVisible, setIsVisible] = useState(false);
 
   const proxyurl = 'https://cors-anywhere.herokuapp.com/';
-  // const proxyurl = 'https://cors-proxy.htmldriven.com/?url=';
+
   useEffect(() => {
     const retrieveToken = async () => {
       await axios
@@ -60,14 +52,7 @@ function App() {
       },
     });
     const res = await request.data;
-    console.log('retrieveme', res);
-    setUser({
-      firstName: res.customer.firstName,
-      lastName: res.customer.lastName,
-      email: res.customer.email,
-      shopifyId: res.customer.shopifyId,
-      amount: res.amount,
-    });
+    setUser(res);
   };
 
   const changeAmount = async (value, userID) => {
@@ -88,6 +73,7 @@ function App() {
       });
       const res = request.data;
       console.log('changeAmount', res);
+      setAmount('');
       retrieveMe(userID);
     } catch (error) {
       console.log(error);
@@ -113,10 +99,16 @@ function App() {
       const res = request.data;
       console.log('changeAmount', res);
       retrieveMe(userID);
+      setReplaceCredit('');
     } catch (error) {
       console.log(error);
     }
   };
+
+  const UserMapped = (props) => {
+    return <p>UserMapped</p>;
+  };
+  console.log('usermapped', user);
   return (
     <div>
       <input
@@ -124,7 +116,14 @@ function App() {
         value={shopid}
         onChange={(e) => setShopID(e.target.value)}
       />
-      <button onClick={() => retrieveMe(shopid)}>Retrieve User</button>
+      <button
+        onClick={() => {
+          retrieveMe(shopid);
+          setIsVisible(true);
+        }}
+      >
+        Retrieve User
+      </button>
       <p>shopifyId: {shopid}</p>
       <div>
         <input
@@ -132,7 +131,13 @@ function App() {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
-        <button onClick={() => changeAmount(amount, shopid)}>Set Amount</button>
+        <button
+          onClick={() => {
+            changeAmount(amount, shopid);
+          }}
+        >
+          Set Amount
+        </button>
         <p>amount: {user.amount}</p>
         <p>state amount: {amount}</p>
       </div>
@@ -142,14 +147,21 @@ function App() {
           value={replaceCredit}
           onChange={(e) => setReplaceCredit(e.target.value)}
         />
-        <button onClick={() => replaceAmount(replaceCredit, shopid)}>
+        <button
+          onClick={() => {
+            replaceAmount(replaceCredit, shopid);
+          }}
+        >
           Replace Amount
         </button>
 
         <p>state amount: {replaceCredit}</p>
+        <div>{isVisible ? <UserMapped user={user} /> : null}</div>
       </div>
-      <div style={{ marginTop: '52px' }}>{JSON.stringify(user, null, 4)}</div>
+      {/* <div style={{ marginTop: '52px' }}>{JSON.stringify(user, null, 4)}</div> */}
+
+      <span>3577057411203</span>
     </div>
   );
-}
+};
 export default App;
