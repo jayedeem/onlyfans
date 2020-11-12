@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-
+import RetrieveMe from './component/retrieveMe';
+import ShowFields from './component/showFields';
 import './App.css';
 require('dotenv').config();
 
 const App = () => {
   const [token, setToken] = useState();
-  const [expiration, setExpiration] = useState();
-  const [user, setUser] = useState([]);
+  const [expiration, setExpiration] = useState(new Date());
+  const [user, setUser] = useState(null);
   const [amount, setAmount] = useState('');
   const [replaceCredit, setReplaceCredit] = useState(null);
-  const [shopid, setShopID] = useState();
+  const [shopid, setShopID] = useState('');
   const [isVisible, setIsVisible] = useState(false);
-
-  const proxyurl = 'https://cors-anywhere.herokuapp.com/';
+  const [loading, setLoading] = useState(true);
+  const myInput = useRef('');
 
   useEffect(() => {
     const retrieveToken = async () => {
@@ -21,7 +22,7 @@ const App = () => {
         .request({
           url: '/oauth/v2/token',
           method: 'POST',
-          baseURL: proxyurl + 'https://api.rewardify.ca',
+          baseURL: 'https://api.rewardify.ca',
           headers: { 'Content-Type': 'application/json' },
           auth: {
             username: process.env.REACT_APP_USERNAME,
@@ -33,8 +34,14 @@ const App = () => {
         })
         .then((data) => {
           const res = data.data;
+          console.log(res);
           setToken(res.access_token);
-          setExpiration(res.expiration);
+          setExpiration(res.expires_in);
+          const dt = new Date();
+
+          localStorage.setItem('token', res.access_token);
+
+          setLoading(false);
         })
         .catch((err) => console.log(err));
     };
@@ -42,17 +49,25 @@ const App = () => {
   }, []);
 
   const retrieveMe = async (userID) => {
-    const request = await axios.request({
-      url: `/customer/${userID}/account`,
-      method: 'GET',
-      baseURL: proxyurl + 'https://api.rewardify.ca',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: `Bearer ${token}`,
-      },
-    });
-    const res = await request.data;
-    setUser(res);
+    await axios
+      .request({
+        url: `/customer/${userID}/account`,
+        method: 'GET',
+        baseURL: 'https://api.rewardify.ca',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+      .then((res) => {
+        settingUser(res.data);
+        setLoading(false);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const settingUser = (resp) => {
+    setUser(resp);
   };
 
   const changeAmount = async (value, userID) => {
@@ -60,10 +75,10 @@ const App = () => {
       const request = await axios.request({
         url: `/customer/${userID}/account/credit`,
         method: 'PUT',
-        baseURL: proxyurl + 'https://api.rewardify.ca',
+        baseURL: 'https://api.rewardify.ca',
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         data: {
           email: user.email,
@@ -73,7 +88,7 @@ const App = () => {
       });
       const res = request.data;
       console.log('changeAmount', res);
-      setAmount('');
+
       retrieveMe(userID);
     } catch (error) {
       console.log(error);
@@ -85,10 +100,10 @@ const App = () => {
       const request = await axios.request({
         url: `/customer/${userID}/account/reset`,
         method: 'PUT',
-        baseURL: proxyurl + 'https://api.rewardify.ca',
+        baseURL: 'https://api.rewardify.ca',
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         data: {
           email: user.email,
@@ -105,62 +120,33 @@ const App = () => {
     }
   };
 
-  const UserMapped = (props) => {
-    return <p>UserMapped</p>;
-  };
-  console.log('usermapped', user);
   return (
     <div>
-      <input
-        type="text"
-        value={shopid}
-        onChange={(e) => setShopID(e.target.value)}
-      />
-      <button
-        onClick={() => {
-          retrieveMe(shopid);
-          setIsVisible(true);
-        }}
-      >
-        Retrieve User
-      </button>
-      <p>shopifyId: {shopid}</p>
-      <div>
-        <input
-          type="text"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+      {loading || !token ? (
+        <div>loading...</div>
+      ) : (
+        <RetrieveMe
+          shopid={shopid}
+          retrieveMe={retrieveMe}
+          user={user}
+          setShopID={setShopID}
+          setLoading={setLoading}
         />
-        <button
-          onClick={() => {
-            changeAmount(amount, shopid);
-          }}
-        >
-          Set Amount
-        </button>
-        <p>amount: {user.amount}</p>
-        <p>state amount: {amount}</p>
-      </div>
-      <div>
-        <input
-          type="text"
-          value={replaceCredit}
-          onChange={(e) => setReplaceCredit(e.target.value)}
+      )}
+      {user === null ? (
+        <div></div>
+      ) : (
+        <ShowFields
+          amount={amount}
+          shopid={shopid}
+          changeAmount={changeAmount}
+          replaceAmount={replaceAmount}
+          user={user}
+          setReplaceCredit={setReplaceCredit}
+          setAmount={setAmount}
+          setLoading={setLoading}
         />
-        <button
-          onClick={() => {
-            replaceAmount(replaceCredit, shopid);
-          }}
-        >
-          Replace Amount
-        </button>
-
-        <p>state amount: {replaceCredit}</p>
-        <div>{isVisible ? <UserMapped user={user} /> : null}</div>
-      </div>
-      {/* <div style={{ marginTop: '52px' }}>{JSON.stringify(user, null, 4)}</div> */}
-
-      <span>3577057411203</span>
+      )}
     </div>
   );
 };
