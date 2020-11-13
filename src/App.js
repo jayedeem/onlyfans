@@ -56,7 +56,7 @@ const App = () => {
     const shopEndpoint = async () => {
       const request = await axios.request({
         method: 'GET',
-        url: `${proxyUrl}https://ultra-swag.myshopify.com/admin/api/2020-10/customers.json`,
+        url: `${proxyUrl}https://ultra-swag.myshopify.com/admin/api/2020-10/customers.json?limit=250`,
         headers: {
           'Content-Type': 'application/json',
           authorization: `Basic ${process.env.REACT_APP_SHOPIFY_X_TOKEN}`,
