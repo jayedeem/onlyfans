@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import RetrieveMe from './component/retrieveMe';
 import ShowFields from './component/showFields';
-import './App.css';
+import ShopUsers from './component/shopUsers';
+// import './App.css';
 require('dotenv').config();
 
 const App = () => {
@@ -14,38 +15,59 @@ const App = () => {
   const [shopid, setShopID] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(true);
-  const myInput = useRef('');
+  const [users, setUsers] = useState();
+
+  const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
+  // useEffect(() => {
+  //   const retrieveToken = async () => {
+  //     await axios
+  //       .request({
+  //         url: '/oauth/v2/token',
+  //         method: 'POST',
+  //         baseURL: 'https://api.rewardify.ca',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         auth: {
+  //           username: process.env.REACT_APP_USERNAME,
+  //           password: process.env.REACT_APP_PASSWORD,
+  //         },
+  //         data: {
+  //           grant_type: 'client_credentials',
+  //         },
+  //       })
+  //       .then((data) => {
+  //         const res = data.data;
+  //         console.log(res);
+  //         setToken(res.access_token);
+  //         setExpiration(res.expires_in);
+  //         const dt = new Date();
+  //         // dt.setHours(dt.getHours() + 1)
+
+  //         localStorage.setItem('token', res.access_token);
+
+  //         setLoading(false);
+  //       })
+  //       .catch((err) => console.log(err));
+  //   };
+  //   retrieveToken();
+  // }, []);
 
   useEffect(() => {
-    const retrieveToken = async () => {
-      await axios
-        .request({
-          url: '/oauth/v2/token',
-          method: 'POST',
-          baseURL: 'https://api.rewardify.ca',
-          headers: { 'Content-Type': 'application/json' },
-          auth: {
-            username: process.env.REACT_APP_USERNAME,
-            password: process.env.REACT_APP_PASSWORD,
-          },
-          data: {
-            grant_type: 'client_credentials',
-          },
-        })
-        .then((data) => {
-          const res = data.data;
-          console.log(res);
-          setToken(res.access_token);
-          setExpiration(res.expires_in);
-          const dt = new Date();
-
-          localStorage.setItem('token', res.access_token);
-
-          setLoading(false);
-        })
-        .catch((err) => console.log(err));
+    const shopEndpoint = async () => {
+      const request = await axios.request({
+        method: 'GET',
+        url: `${proxyUrl}https://ultra-swag.myshopify.com/admin/api/2020-10/customers.json`,
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Basic ${process.env.REACT_APP_SHOPIFY_X_TOKEN}`,
+        },
+      });
+      const data = request.data;
+      setUsers(data);
+      console.log(data);
+      setLoading(false);
     };
-    retrieveToken();
+    shopEndpoint();
   }, []);
 
   const retrieveMe = async (userID) => {
@@ -103,6 +125,7 @@ const App = () => {
         baseURL: 'https://api.rewardify.ca',
         headers: {
           'Content-Type': 'application/json',
+
           authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         data: {
@@ -120,34 +143,6 @@ const App = () => {
     }
   };
 
-  return (
-    <div>
-      {loading || !token ? (
-        <div>loading...</div>
-      ) : (
-        <RetrieveMe
-          shopid={shopid}
-          retrieveMe={retrieveMe}
-          user={user}
-          setShopID={setShopID}
-          setLoading={setLoading}
-        />
-      )}
-      {user === null ? (
-        <div></div>
-      ) : (
-        <ShowFields
-          amount={amount}
-          shopid={shopid}
-          changeAmount={changeAmount}
-          replaceAmount={replaceAmount}
-          user={user}
-          setReplaceCredit={setReplaceCredit}
-          setAmount={setAmount}
-          setLoading={setLoading}
-        />
-      )}
-    </div>
-  );
+  return <>{loading ? <div>Loading...</div> : <ShopUsers users={users} />}</>;
 };
 export default App;
