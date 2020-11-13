@@ -143,6 +143,14 @@ const App = () => {
     }
   };
 
-  return <>{loading ? <div>Loading...</div> : <ShopUsers users={users} />}</>;
+  return (
+    <>
+      {loading && !users ? (
+        <div>Loading...</div>
+      ) : (
+        <ShopUsers users={users} setUsers={setUsers} loading={loading} />
+      )}
+    </>
+  );
 };
 export default App;

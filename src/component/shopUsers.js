@@ -1,45 +1,48 @@
 import React from 'react';
 
-const ShopUsers = ({ users }) => {
+const ShopUsers = ({ users, setUsers, loading }) => {
   const [data, setData] = React.useState([]);
 
   const filteredUsers = users.customers.filter(
     (user) => user.tags === 'employee'
   );
 
-  const sortArray = (type) => {
-    const types = {
-      first: 'first_name',
-      last: 'last_Name',
-    };
-    const sortProp = types[type];
-    console.log(sortProp);
-    const sortUsers = [...filteredUsers].sort((a, b) => {
-      return a[sortProp] > b[sortProp] ? 1 : -1;
-    });
-    setData(sortUsers);
-    console.log('sorted', sortUsers);
+  const sortFunction = (value) => {
+    if (value === 'first_name') {
+      return setData(
+        filteredUsers.sort((a, b) => (a.first_name > b.first_name ? 1 : -1))
+      );
+    }
+    if (value === 'last_name') {
+      return setData(
+        filteredUsers.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
+      );
+    }
   };
 
   return (
     <div>
-      <select onChange={(e) => sortArray(e.target.value)}>
-        <option value="opt">Select Option</option>
-        <option value="first">First Name</option>
-        <option value="last">Last Name</option>
-      </select>
-      {data.map((user) => {
-        return (
-          <div key={user.id}>
-            <ul>
-              <li>
-                <a href={user.id}>{user.id} </a> {user.first_name}{' '}
-                {user.last_name}
-              </li>
-            </ul>
-          </div>
-        );
-      })}
+      {users && !loading && (
+        <div>
+          <select onChange={(e) => sortFunction(e.target.value)}>
+            <option>Select an option</option>
+            <option value="first_name">First Name</option>
+            <option value="last_name">Last Name</option>
+          </select>
+          {data.map((user) => {
+            return (
+              <div key={user.id}>
+                <ul>
+                  <li>
+                    <a href={user.id}>{user.id} </a> {user.first_name}{' '}
+                    {user.last_name}
+                  </li>
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
