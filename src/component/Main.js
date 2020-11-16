@@ -5,6 +5,7 @@ import HomePage from './Home';
 import Navbar from './Navbar';
 import Users from './Users';
 import UserProfile from './UserProfile';
+import CreateUser from './CreateUser';
 require('dotenv').config();
 
 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
@@ -79,6 +80,7 @@ const Main = () => {
                 />
               )}
             />
+            <Route path="/createuser" exact component={CreateUser} />
           </Switch>
         </div>
       )}
