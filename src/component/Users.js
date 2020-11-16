@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-const Users = ({ users, match }) => {
+const Users = ({ users }) => {
   const [usersData, setUsersData] = useState({});
   const [data, setData] = React.useState(users);
 
-  const filteredUsers = users.filter((user) => user.tags === 'employee');
+  const filteredUsers = data.filter((user) => user.tags === 'employee');
 
   const sortFunction = (value) => {
     if (value === 'first_name') {
@@ -34,7 +34,16 @@ const Users = ({ users, match }) => {
             return (
               <ul key={user.id}>
                 <li style={stylesUsers.list}>
-                  <Link to={`users/${user.id}`}>{user.id}</Link>
+                  <Link
+                    to={{
+                      pathname: `users/${user.id}`,
+                      state: {
+                        userID: user.id,
+                      },
+                    }}
+                  >
+                    {user.id}
+                  </Link>
                   {user.first_name} {user.last_name}
                 </li>
               </ul>
