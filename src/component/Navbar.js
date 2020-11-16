@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
-    <nav>
+    <nav style={stylesNav.z4}>
       <h3>RewardifyCMS</h3>
-      <ul className="nav-links">
-        <Link to="/" style={stylesNav}>
+      <ul style={stylesNav.navLinks}>
+        <Link to="/" style={stylesNav.navLinks}>
           <li>Home</li>
         </Link>
-        <Link to="/users" style={stylesNav}>
+        <Link to="/users" style={stylesNav.navLinks}>
           <li>Users</li>
         </Link>
       </ul>
@@ -20,6 +20,21 @@ const Navbar = () => {
 export default Navbar;
 
 const stylesNav = {
-  color: 'white',
-  textDecoration: 'none',
+  wrapper: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    minHeight: '10vh',
+    backgroundColor: 'black',
+    color: '#fff',
+  },
+  navLinks: {
+    width: '50%',
+    display: 'flex',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    listStyleType: 'none',
+    color: '#fff',
+    textDecoration: 'none',
+  },
 };

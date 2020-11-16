@@ -48,6 +48,7 @@ const Main = () => {
     const res = shopData;
     console.log(res.data.customers);
     const tokenData = rewardifyToken.data.access_token;
+    console.log('token and data received');
     setToken(tokenData);
     setUsers(res.data.customers);
     setIsLoading(false);
@@ -56,7 +57,7 @@ const Main = () => {
   return (
     <Router>
       <Navbar />
-      {isLoading ? (
+      {isLoading && !users && !token ? (
         <div>Loading...</div>
       ) : (
         <div>
