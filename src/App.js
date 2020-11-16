@@ -1,16 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
 import Main from './component/Main';
-// import './App.css';
-require('dotenv').config();
-
+import React, { useState, useEffect, useRef } from 'react';
+import './App.css';
 const App = () => {
   return (
-    <Router>
-      <div>
-        <Main />
-      </div>
-    </Router>
+    <div>
+      <Main />
+    </div>
+
   );
 };
 export default App;

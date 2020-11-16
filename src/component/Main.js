@@ -1,172 +1,91 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import axios from 'axios';
-import {
-  Switch,
-  Route,
-  Redirect,
-  withRouter,
-  Link,
-  BrowserRouter as Router,
-} from 'react-router-dom';
-import ShopUsers from './shopUsers';
-// import './App.css';
 import HomePage from './Home';
+import Navbar from './Navbar';
+import Users from './Users';
+import UserProfile from './UserProfile';
 require('dotenv').config();
 
-const Main = () => {
-  const [token, setToken] = useState();
-  const [expiration, setExpiration] = useState(new Date());
-  const [user, setUser] = useState(null);
-  const [amount, setAmount] = useState('');
-  const [replaceCredit, setReplaceCredit] = useState(null);
-  const [shopid, setShopID] = useState('');
-  const [isVisible, setIsVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState();
+const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 
-  const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+const Main = () => {
+  const [users, setUsers] = useState([]);
+  const [token, setToken] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const shopEndpoint = await axios.request({
-        method: 'GET',
-        url: `${proxyUrl}https://ultra-swag.myshopify.com/admin/api/2020-10/customers.json?limit=250`,
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: `Basic ${process.env.REACT_APP_SHOPIFY_X_TOKEN}`,
-        },
-      });
-      const rewardifyEndpoint = await axios.request({
-        url: '/oauth/v2/token',
-        method: 'POST',
-        baseURL: 'https://api.rewardify.ca',
-        headers: { 'Content-Type': 'application/json' },
-        auth: {
-          username: process.env.REACT_APP_USERNAME,
-          password: process.env.REACT_APP_PASSWORD,
-        },
-        data: {
-          grant_type: 'client_credentials',
-        },
-      });
-
-      setToken(rewardifyEndpoint.data.access_token);
-      setUsers(shopEndpoint.data);
-      setLoading(false);
-    };
-    fetchData();
+    fetchUsers();
   }, []);
 
-  // const retrieveMe = async (userID) => {
-  //   await axios
-  //     .request({
-  //       url: `/customer/${userID}/account`,
-  //       method: 'GET',
-  //       baseURL: 'https://api.rewardify.ca',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         authorization: `Bearer ${localStorage.getItem('token')}`,
-  //       },
-  //     })
-  //     .then((res) => {
-  //       settingUser(res.data);
-  //       setLoading(false);
-  //     })
-  //     .catch((err) => console.log(err));
-  // };
+  const fetchUsers = async () => {
+    const shopData = await axios.request({
+      url: 'customers.json?limit=250',
+      method: 'GET',
+      baseURL: proxyUrl + process.env.REACT_APP_SHOPIFY_URL,
+      headers: {
+        'Content-type': 'application/json',
+        authorization: `Basic ${process.env.REACT_APP_SHOPIFY_X_TOKEN}`,
+      },
+    });
+    const rewardifyToken = await axios.request({
+      url: '/oauth/v2/token',
+      method: 'POST',
+      baseURL: proxyUrl + 'https://api.rewardify.ca',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      auth: {
+        username: process.env.REACT_APP_USERNAME,
+        password: process.env.REACT_APP_PASSWORD,
+      },
+      data: {
+        grant_type: 'client_credentials',
+      },
+    });
 
-  // const settingUser = (resp) => {
-  //   setUser(resp);
-  // };
-
-  // const changeAmount = async (value, userID) => {
-  //   try {
-  //     const request = await axios.request({
-  //       url: `/customer/${userID}/account/credit`,
-  //       method: 'PUT',
-  //       baseURL: 'https://api.rewardify.ca',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         authorization: `Bearer ${localStorage.getItem('token')}`,
-  //       },
-  //       data: {
-  //         email: user.email,
-  //         amount: value,
-  //         memo: 'hello',
-  //       },
-  //     });
-  //     const res = request.data;
-  //     console.log('changeAmount', res);
-
-  //     retrieveMe(userID);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // const replaceAmount = async (value, userID) => {
-  //   try {
-  //     const request = await axios.request({
-  //       url: `/customer/${userID}/account/reset`,
-  //       method: 'PUT',
-  //       baseURL: 'https://api.rewardify.ca',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-
-  //         authorization: `Bearer ${localStorage.getItem('token')}`,
-  //       },
-  //       data: {
-  //         email: user.email,
-  //         amount: value,
-  //         memo: 'hello',
-  //       },
-  //     });
-  //     const res = request.data;
-  //     console.log('changeAmount', res);
-  //     retrieveMe(userID);
-  //     setReplaceCredit('');
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+    // console.log(rewardifyToken);
+    const res = shopData;
+    console.log(res.data.customers);
+    const tokenData = rewardifyToken.data.access_token;
+    console.log('token and data received');
+    setToken(tokenData);
+    setUsers(res.data.customers);
+    setIsLoading(false);
+  };
 
   return (
-    <>
-      {loading && !users ? (
+    <Router>
+      <Navbar />
+      {isLoading && !users && !token ? (
         <div>Loading...</div>
       ) : (
-        <Router>
-          <div>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-                <li>
-                  <Link to="/users">Users</Link>
-                </li>
-              </li>
-            </ul>
-
-            <hr />
-
-            <Switch>
-              <Route exact path="/">
-                {HomePage}
-              </Route>
-              <Route exact path="/users">
-                {users && !loading && (
-                  <ShopUsers
-                    users={users}
-                    setUsers={setUsers}
-                    loading={loading}
-                    token={token}
-                  />
-                )}
-              </Route>
-            </Switch>
-          </div>
-        </Router>
+        <div>
+          <Switch>
+            <Route exact path="/" component={HomePage} />
+            <Route
+              exact
+              path="/users"
+              component={() => <Users users={users} token={token} />}
+            />
+            <Route
+              exact
+              path="/users/:id"
+              component={() => (
+                <UserProfile
+                  token={token}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                />
+              )}
+            />
+          </Switch>
+        </div>
       )}
-    </>
+    </Router>
   );
 };
+
+
 export default Main;
