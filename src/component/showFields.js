@@ -1,64 +1,91 @@
+import axios from 'axios';
 import React from 'react';
+const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
+  const [replacementCredit, setReplacementCredit] = React.useState();
+  const [amount, setAmount] = React.useState();
 
-const ShowFields = ({
-  replaceCredit,
-  shopid,
-  replaceAmount,
-  amount,
-  changeAmount,
-  user,
-  setReplaceCredit,
-  setAmount,
-  setLoading,
-}) => {
-  const handleReplaceAmount = (e) => {
-    setReplaceCredit(e.target.value);
-  };
+  // const handleReplaceAmount = (e) => {
+  //   setReplacementCredit(e.target.value);
+  // };
   const handleSetAmount = (e) => {
     setAmount(e.target.value);
   };
+
+  const updateMe = async (userId) => {
+    const url =
+      proxyUrl + `https://api.rewardify.ca/customer/${userId}/account`;
+    axios
+      .get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        setUserDetails(res.data);
+      })
+      .catch((err) => console.log(err));
+  };
+  const addCredit = async (value, user) => {
+    let isRendered = false;
+    const data = await axios.request({
+      url: `/customer/${user}/account/credit`,
+      method: 'PUT',
+      baseURL: proxyUrl + 'https://api.rewardify.ca/',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      data: {
+        email: '',
+        amount: value,
+        memo: 'hello',
+        expiresAt: '2021-05-05T10:21:05.349Z',
+      },
+    });
+    // const res = data.data;
+    updateMe(user);
+    isRendered = true;
+  };
+
   return (
     <div>
-      <input
+      {/* <input
         type="input"
-        value={replaceCredit}
+        value={replacementCredit}
+        placeholder="replace credit"
         onChange={(e) => handleReplaceAmount(e)}
       />
       <button
         onClick={() => {
-          replaceAmount(replaceCredit, shopid);
-          setLoading(true);
+          // replaceAmount(replacementCredit, id);
+          console.log('replace credit clicked');
         }}
       >
         Replace Amount
       </button>
 
-      <p>state amount: {replaceCredit}</p>
+      <p>state amount: {replacementCredit}</p> */}
 
       <input
         type="text"
         name="amount"
-        value={amount}
+        placeholder="Add Credit"
+        value={amount || ''}
         onChange={(e) => handleSetAmount(e)}
       />
       <button
         onClick={() => {
-          changeAmount(amount, shopid);
-          setLoading(true);
+          console.log('add credit clicked');
+          addCredit(amount, id);
           setAmount('');
+          setIsLoading(true);
         }}
       >
         Add Credit
       </button>
-
-      {/* <p>amount: {user.data.amount}</p> */}
-      <p>state amount: {amount}</p>
-      <div>
-        <label>User Details</label>
-        <li>First Name: {user.customer.firstName}</li>
-        <li>Last Name: {user.customer.lastName}</li>
-        <li>You have ${user.amount} in your account</li>
-      </div>
     </div>
   );
 };
