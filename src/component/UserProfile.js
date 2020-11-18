@@ -35,7 +35,6 @@ const UserProfile = ({ token, isLoading, setIsLoading }) => {
   const [userDetails, setUserDetails] = useState();
 
   useEffect(() => {
-    let isCancelled = true;
     console.log(state);
     const url =
       proxyUrl + `https://api.rewardify.ca/customer/${state.userID}/account`;
@@ -43,19 +42,14 @@ const UserProfile = ({ token, isLoading, setIsLoading }) => {
       .get(url, {
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${state.userToken}`,
+          authorization: `Bearer ${state.userToken.token}`,
         },
       })
       .then((res) => {
-        if (isCancelled) {
-          setUserDetails(res.data);
-        }
+        setUserDetails(res.data);
       })
       .catch((err) => console.log(err));
-    return () => {
-      isCancelled = false;
-    };
-  }, []);
+  }, [state]);
 
   return (
     <div style={stylesUserProfile.container}>

@@ -15,6 +15,9 @@ const Navbar = () => {
         <Link to="/createuser" style={stylesNav.navLinks}>
           <li>Create User</li>
         </Link>
+        <Link to="/bulkupdate" style={stylesNav.navLinks}>
+          <li>Bulk</li>
+        </Link>
       </ul>
     </nav>
   );

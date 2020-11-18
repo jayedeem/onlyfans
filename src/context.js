@@ -15,7 +15,7 @@ export const Provider = ({ children }) => {
 
   const fetchUsers = async () => {
     const shopData = await axios.request({
-      url: 'customers.json?limit=250',
+      url: '/customers/search.json?query=employee&limit=250',
       method: 'GET',
       baseURL: `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_SHOPIFY_URL}`,
       headers: {
@@ -38,6 +38,11 @@ export const Provider = ({ children }) => {
         grant_type: 'client_credentials',
       },
     });
+    // console.log(shopData.data.customers);
+    // const data = shopData.data.customers;
+    // console.log([...data]);
+    // const filterUsers = [...data].filter((user) => user.tags === 'employee');
+    // console.log('filtered', filterUsers);
     setToken(rewardifyToken.data.access_token);
     setUsers(shopData.data);
   };

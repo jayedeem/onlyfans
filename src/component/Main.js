@@ -6,6 +6,7 @@ import Navbar from './Navbar';
 import Users from './Users';
 import UserProfile from './UserProfile';
 import CreateUser from './CreateUser';
+import BulkUpdate from './BulkUpdate';
 
 const Main = () => {
   return (
@@ -17,6 +18,7 @@ const Main = () => {
           <Route exact path="/users" component={Users} />
           <Route exact path="/users/:id" component={UserProfile} />
           <Route exact path="/createuser" component={CreateUser} />
+          <Route exact path="/bulkupdate" component={BulkUpdate} />
         </Switch>
       </div>
     </Router>
