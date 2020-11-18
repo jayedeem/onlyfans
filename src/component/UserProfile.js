@@ -65,7 +65,7 @@ const UserProfile = ({ token, isLoading, setIsLoading }) => {
     return () => {
       isCancelled = false;
     };
-  }, []);
+  }, [location, setIsLoading, token]);
 
   // const fetchUserDetails = async () => {
   //   setIsLoading(true);

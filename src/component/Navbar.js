@@ -12,6 +12,9 @@ const Navbar = () => {
         <Link to="/users" style={stylesNav.navLinks}>
           <li>Users</li>
         </Link>
+        <Link to="/createuser" style={stylesNav.navLinks}>
+          <li>Create User</li>
+        </Link>
       </ul>
     </nav>
   );
