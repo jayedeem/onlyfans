@@ -1,11 +1,15 @@
 import Main from './component/Main';
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
+import { Provider } from './context';
 import './App.css';
+
 const App = () => {
   return (
-    <div>
-      <Main />
-    </div>
+    <Provider>
+      <div>
+        <Main />
+      </div>
+    </Provider>
   );
 };
 export default App;
