@@ -23,10 +23,10 @@ const Search = ({ searchValue, setSearchValue, users }) => {
         margin: '20px',
       }}
     >
-      <label htmlFor="search">Search by Name</label>
+      <label htmlFor="search">Search by Name:</label>
 
       <input
-        style={{ marginBottom: '20px' }}
+        style={{ margin: '10px 0 10px 0', width: '300px', padding: '5px' }}
         type="text"
         value={searchValue}
         placeholder="Search an employee.."
@@ -34,38 +34,43 @@ const Search = ({ searchValue, setSearchValue, users }) => {
       />
 
       {handleSearch.map((user) => {
-        return (
-          <ul
-            key={user.id}
-            style={{
-              textDecoration: 'none',
-              listStyleType: 'none',
-              display: 'flex',
-              flexDirection: 'row',
-              textAlign: 'center',
-              justifyContent: 'space-around',
-            }}
-          >
-            <li>
-              <Link
-                style={{
-                  textDecoration: 'none',
-                  listStyleType: 'none',
-                }}
-                to={{
-                  pathname: `users/${user.id}`,
-                  state: {
-                    userID: user.id,
-                    userToken: token,
-                  },
-                }}
-              >
-                {user.id}
-              </Link>
-              {user.first_name} {user.last_name}
-            </li>
-          </ul>
-        );
+        if (user.length === 0 && !user) {
+          return <p>no user with that name exists</p>;
+        } else {
+          return (
+            <ul
+              key={user.id}
+              style={{
+                textDecoration: 'none',
+                listStyleType: 'none',
+                display: 'flex',
+                flexDirection: 'row',
+                textAlign: 'center',
+                justifyContent: 'space-around',
+              }}
+            >
+              <li style={{ padding: '2px' }}>
+                <Link
+                  style={{
+                    textDecoration: 'none',
+                    listStyleType: 'none',
+                    padding: '10px',
+                  }}
+                  to={{
+                    pathname: `users/${user.id}`,
+                    state: {
+                      userID: user.id,
+                      userToken: token,
+                    },
+                  }}
+                >
+                  {user.id}
+                </Link>
+                {user.first_name} {user.last_name}
+              </li>
+            </ul>
+          );
+        }
       })}
       {/* <pre>{JSON.stringify(handleSearch, null, 2)}</pre> */}
     </div>
