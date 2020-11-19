@@ -2,9 +2,10 @@ import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UsersContext } from '../context';
 
-const Search = ({ searchValue, setSearchValue, users }) => {
+const Search = ({ users }) => {
   // const [user, setUser] = useState(users);
-
+  const [filterUser, setFilteredUser] = useState();
+  const [searchValue, setSearchValue] = useState('');
   const token = useContext(UsersContext);
 
   const handleSearch = users.filter((u) => {
@@ -13,6 +14,10 @@ const Search = ({ searchValue, setSearchValue, users }) => {
       u.last_name.toLowerCase().includes(searchValue.toLowerCase())
     );
   });
+
+  const handleChange = (e) => {
+    setSearchValue(e.target.value);
+  };
 
   return (
     <div
@@ -30,13 +35,13 @@ const Search = ({ searchValue, setSearchValue, users }) => {
         type="text"
         value={searchValue}
         placeholder="Search an employee.."
-        onChange={(e) => setSearchValue(e.target.value)}
+        onChange={(e) => handleChange(e)}
       />
 
-      {handleSearch.map((user) => {
-        if (user.length === 0 && !user) {
-          return <p>no user with that name exists</p>;
-        } else {
+      {handleSearch.length === 0 ? (
+        <div>No users with that name exists</div>
+      ) : (
+        handleSearch.map((user) => {
           return (
             <ul
               key={user.id}
@@ -70,8 +75,8 @@ const Search = ({ searchValue, setSearchValue, users }) => {
               </li>
             </ul>
           );
-        }
-      })}
+        })
+      )}
       {/* <pre>{JSON.stringify(handleSearch, null, 2)}</pre> */}
     </div>
   );

@@ -45,6 +45,7 @@ export const Provider = ({ children }) => {
     // console.log('filtered', filterUsers);
     setToken(rewardifyToken.data.access_token);
     setUsers(shopData.data);
+    console.log('token and users set');
   };
 
   return (

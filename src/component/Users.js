@@ -13,7 +13,6 @@ const Users = () => {
   console.log('usecontext', users);
   // const [usersData, setUsersData] = useState(users);
   const [data, setData] = useState([]);
-  const [searchValue, setSearchValue] = useState('');
 
   function ListItemLink(props) {
     return <ListItem button component="a" {...props} />;
@@ -28,11 +27,7 @@ const Users = () => {
           setData(users.customers);
           return (
             <div style={{ marginTop: '10px' }}>
-              <Search
-                searchValue={searchValue}
-                setSearchValue={setSearchValue}
-                users={data}
-              />
+              <Search users={data} />
             </div>
           );
         }
