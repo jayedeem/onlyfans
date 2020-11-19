@@ -1,58 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { UsersContext } from '../context';
+import { Consumer } from '../context';
+import { useLocation } from 'react-router-dom';
+import ShowFields from './ShowFields';
 import axios from 'axios';
 
 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 
-const UserProfile = ({ token, match, isLoading, setIsLoading }) => {
-  const [user, setUser] = useState(null);
+// const Profile = ({ userDetails, id, setUserDetails, setIsLoading }) => {
+//   const { token } = React.useContext(UsersContext);
+//   console.log(userDetails);
+//   return (
+//     <div>
+//       <h1>{userDetails.customer.firstName}'s Profile</h1>
+//       {/* {JSON.stringify(userDetails, null, 5)} */}
+//       <ul style={stylesUserProfile.link}>
+//         <li>Amount: ${userDetails.amount}</li>
+//         <li>Email: {userDetails.customer.email}</li>
+//         <li>First Name: {userDetails.customer.firstName}</li>
+//         <li>Last Name: {userDetails.customer.lastName}</li>
+//       </ul>
+//       <ShowFields
+//         token={token}
+//         id={id}
+//         setUserDetails={setUserDetails}
+//         setIsLoading={setIsLoading}
+//       />
+//     </div>
+//   );
+// };
+
+const UserProfile = ({ token, isLoading, setIsLoading }) => {
+  const { state } = useLocation();
+  const [userDetails, setUserDetails] = useState();
 
   useEffect(() => {
-    console.log(match);
-    fetchUser();
-  }, []);
-
-  const fetchUser = async () => {
-    //
-    setIsLoading(true);
-    const data = await axios.request({
-      url: `customer/3547125055619/account`,
-      method: 'GET',
-      baseURL: proxyUrl + 'https://api.rewardify.ca/',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: `Bearer ${token}`,
-      },
-    });
-    const res = data.data;
-    console.log(res);
-    setUser(res);
-    setIsLoading(false);
-  };
+    console.log(state);
+    const url =
+      proxyUrl + `https://api.rewardify.ca/customer/${state.userID}/account`;
+    axios
+      .get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${state.userToken.token}`,
+        },
+      })
+      .then((res) => {
+        setUserDetails(res.data);
+      })
+      .catch((err) => console.log(err));
+  }, [state]);
 
   return (
-    <>
-      {!isLoading && user !== null && (
-        <div style={stylesUserProfile}>
-          <h1>Users Profile</h1>
-          {user.map((user) => {
-            return (
-              <ul key={user.id}>
-                <li>{user.customer.first_name}</li>
-                <li>{user.customer.last_name}</li>
-              </ul>
-            );
-          })}
-        </div>
+    <div style={stylesUserProfile.container}>
+      <h1>User Profile</h1>
+
+      {!userDetails ? (
+        <div>Loading...</div>
+      ) : (
+        <pre>{JSON.stringify(userDetails, null, 2)}</pre>
       )}
-    </>
+    </div>
   );
 };
 
 export default UserProfile;
 
 const stylesUserProfile = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  textAlign: 'center',
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+  },
+  link: {
+    listStyleType: 'none',
+  },
 };

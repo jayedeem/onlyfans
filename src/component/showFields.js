@@ -1,66 +1,170 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useState } from 'react';
+const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
+  const [replacementCredit, setReplacementCredit] = React.useState();
+  const [amount, setAmount] = React.useState();
+  const [debitAmount, setDebitAmount] = useState();
+  const [resetCredit, setResetCredit] = useState();
 
-const ShowFields = ({
-  replaceCredit,
-  shopid,
-  replaceAmount,
-  amount,
-  changeAmount,
-  user,
-  setReplaceCredit,
-  setAmount,
-  setLoading,
-}) => {
-  const handleReplaceAmount = (e) => {
-    setReplaceCredit(e.target.value);
+  const handleDebitAmount = (e) => {
+    setDebitAmount(e.target.value);
   };
   const handleSetAmount = (e) => {
     setAmount(e.target.value);
   };
+
+  const handleReset = (e) => {
+    setResetCredit(e.target.value);
+  };
+
+  const updateMe = async (userId) => {
+    const url =
+      proxyUrl + `https://api.rewardify.ca/customer/${userId}/account`;
+    axios
+      .get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        setUserDetails(res.data);
+      })
+      .catch((err) => console.log(err));
+  };
+  const addCredit = async (value, user) => {
+    // let isRendered = false;
+    await axios.request({
+      url: `/customer/${user}/account/credit`,
+      method: 'PUT',
+      baseURL: proxyUrl + 'https://api.rewardify.ca/',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      data: {
+        email: '',
+        amount: value,
+        memo: 'hello',
+        expiresAt: '2021-05-05T10:21:05.349Z',
+      },
+    });
+
+    updateMe(user);
+  };
+  const subtractCredit = async (value, user) => {
+    // let isRendered = false;
+    await axios.request({
+      url: `/customer/${user}/account/debit`,
+      method: 'PUT',
+      baseURL: proxyUrl + 'https://api.rewardify.ca/',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      data: {
+        email: '',
+        amount: value,
+        memo: 'hello',
+      },
+    });
+
+    updateMe(user);
+  };
+
+  const resetUserCredit = async (value, user) => {
+    await axios.request({
+      url: `/customer/${user}/account/reset`,
+      method: 'PUT',
+      baseURL: proxyUrl + 'https://api.rewardify.ca/',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      data: {
+        email: '',
+        amount: value,
+        memo: 'hello',
+        expiresAt: '2021-05-05T10:21:05.349Z',
+      },
+    });
+
+    updateMe(user);
+  };
+
   return (
-    <div>
-      <input
-        type="input"
-        value={replaceCredit}
-        onChange={(e) => handleReplaceAmount(e)}
-      />
-      <button
-        onClick={() => {
-          replaceAmount(replaceCredit, shopid);
-          setLoading(true);
-        }}
-      >
-        Replace Amount
-      </button>
-
-      <p>state amount: {replaceCredit}</p>
-
+    <div styles={styles.container}>
+      {/* Add Credit */}
       <input
         type="text"
         name="amount"
-        value={amount}
+        placeholder="Add Credit"
+        value={amount || ''}
         onChange={(e) => handleSetAmount(e)}
       />
       <button
         onClick={() => {
-          changeAmount(amount, shopid);
-          setLoading(true);
+          console.log('add credit clicked');
+          addCredit(amount, id);
           setAmount('');
+          setIsLoading(true);
         }}
       >
         Add Credit
       </button>
-
-      {/* <p>amount: {user.data.amount}</p> */}
-      <p>state amount: {amount}</p>
       <div>
-        <label>User Details</label>
-        <li>First Name: {user.customer.firstName}</li>
-        <li>Last Name: {user.customer.lastName}</li>
-        <li>You have ${user.amount} in your account</li>
+        {/* Deduct Credit */}
+        <input
+          type="text"
+          name="amount"
+          placeholder="Subtract Credit"
+          value={debitAmount || ''}
+          onChange={(e) => handleDebitAmount(e)}
+        />
+        <button
+          onClick={() => {
+            console.log('sub credit clicked');
+            subtractCredit(debitAmount, id);
+            setDebitAmount('');
+            setIsLoading(true);
+          }}
+        >
+          Subtract Credit
+        </button>
+      </div>
+      <div>
+        {/* Replace Credit with a different value */}
+        <input
+          type="text"
+          name="amount"
+          placeholder="Replace Credit"
+          value={resetCredit || ''}
+          onChange={(e) => handleReset(e)}
+        />
+        <button
+          onClick={() => {
+            console.log('reset credit clicked');
+            resetUserCredit(resetCredit, id);
+            setResetCredit('');
+            setIsLoading(true);
+          }}
+        >
+          Reset Credit
+        </button>
       </div>
     </div>
   );
 };
 
 export default ShowFields;
+
+const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+};

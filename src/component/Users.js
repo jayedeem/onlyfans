@@ -1,50 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-const Users = ({ users, match }) => {
-  const [usersData, setUsersData] = useState({});
-  const [data, setData] = React.useState([]);
+import { Consumer } from '../context';
+import { UsersContext } from '../context';
+import Search from './Search';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import { Container, Paper } from '@material-ui/core';
 
-  useEffect(() => {
-    console.log(match);
-  });
+const Users = () => {
+  const users = React.useContext(UsersContext);
+  console.log('usecontext', users);
+  // const [usersData, setUsersData] = useState(users);
+  const [data, setData] = useState([]);
 
-  const filteredUsers = users.filter((user) => user.tags === 'employee');
+  function ListItemLink(props) {
+    return <ListItem button component="a" {...props} />;
+  }
 
-  const sortFunction = (value) => {
-    if (value === 'first_name') {
-      return setData(
-        filteredUsers.sort((a, b) => (a.first_name > b.first_name ? 1 : -1))
-      );
-    }
-    if (value === 'last_name') {
-      return setData(
-        filteredUsers.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
-      );
-    }
-  };
   return (
-    <div style={stylesUsers.container}>
-      <h1>Users Page</h1>
-      {/* <pre>{JSON.stringify(users, null, 4)}</pre> */}
-
-      <select onChange={(e) => sortFunction(e.target.value)}>
-        <option>Select an option</option>
-        <option value="first_name">First Name</option>
-        <option value="last_name">Last Name</option>
-      </select>
-      <div>
-        {data.map((user) => {
+    <Consumer>
+      {({ users, token }) => {
+        if (users.length === 0 && data.length === 0) {
+          return <div>Loading...</div>;
+        } else {
+          setData(users.customers);
           return (
-            <ul key={user.id}>
-              <li style={stylesUsers.list}>
-                <Link to={`users/${user.id}`}>{user.id}</Link>
-                {user.first_name} {user.last_name}
-              </li>
-            </ul>
+            <div style={{ marginTop: '10px' }}>
+              <Search users={data} />
+            </div>
           );
-        })}
-      </div>
-    </div>
+        }
+      }}
+    </Consumer>
   );
 };
 
