@@ -19,8 +19,7 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
   };
 
   const updateMe = async (userId) => {
-    const url =
-      proxyUrl + `https://api.rewardify.ca/customer/${userId}/account`;
+    const url = `http://localhost:1337/https://api.rewardify.ca/customer/${userId}/account`;
     axios
       .get(url, {
         headers: {

@@ -20,7 +20,7 @@ const BulkUpdate = () => {
         .request({
           url: `/customer/${user}/account/credit`,
           method: 'PUT',
-          baseURL: proxyUrl + 'https://api.rewardify.ca/',
+          baseURL: 'http://localhost:1337/https://api.rewardify.ca/',
           headers: {
             'Content-Type': 'application/json',
             authorization: `Bearer ${token.token}`,

@@ -17,7 +17,7 @@ export const Provider = ({ children }) => {
     const shopData = await axios.request({
       url: '/customers/search.json?query=employee&limit=250',
       method: 'GET',
-      baseURL: `https://cors-anywhere.herokuapp.com/${process.env.REACT_APP_SHOPIFY_URL}`,
+      baseURL: `http://localhost:1337/${process.env.REACT_APP_SHOPIFY_URL}`,
       headers: {
         'Content-type': 'application/json',
         authorization: `Basic ${process.env.REACT_APP_SHOPIFY_X_TOKEN}`,
@@ -26,7 +26,7 @@ export const Provider = ({ children }) => {
     const rewardifyToken = await axios.request({
       url: '/oauth/v2/token',
       method: 'POST',
-      baseURL: `https://cors-anywhere.herokuapp.com/https://api.rewardify.ca`,
+      baseURL: `http://localhost:1337/https://api.rewardify.ca`,
       headers: {
         'Content-type': 'application/json',
       },

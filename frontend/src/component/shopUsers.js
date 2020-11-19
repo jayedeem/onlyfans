@@ -1,5 +1,5 @@
 import React from 'react';
-import { findDOMNode } from 'react-dom';
+
 import {
   BrowserRouter as Router,
   Switch,

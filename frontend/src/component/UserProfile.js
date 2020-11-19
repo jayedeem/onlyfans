@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { UsersContext } from '../context';
 import { Consumer } from '../context';
@@ -6,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import ShowFields from './ShowFields';
 import axios from 'axios';
 
-const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+const proxyUrl = 'http://localhost:1337/';
 
 // const Profile = ({ userDetails, id, setUserDetails, setIsLoading }) => {
 //   const { token } = React.useContext(UsersContext);
@@ -79,4 +78,3 @@ const stylesUserProfile = {
     listStyleType: 'none',
   },
 };
-
