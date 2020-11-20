@@ -5,44 +5,36 @@ import { useLocation } from 'react-router-dom';
 import ShowFields from './ShowFields';
 import axios from 'axios';
 
-const proxyUrl = 'http://localhost:1337/';
+// const proxyUrl = 'http://localhost:1337/';
 
-// const Profile = ({ userDetails, id, setUserDetails, setIsLoading }) => {
-//   const { token } = React.useContext(UsersContext);
-//   console.log(userDetails);
-//   return (
-//     <div>
-//       <h1>{userDetails.customer.firstName}'s Profile</h1>
-//       {/* {JSON.stringify(userDetails, null, 5)} */}
-//       <ul style={stylesUserProfile.link}>
-//         <li>Amount: ${userDetails.amount}</li>
-//         <li>Email: {userDetails.customer.email}</li>
-//         <li>First Name: {userDetails.customer.firstName}</li>
-//         <li>Last Name: {userDetails.customer.lastName}</li>
-//       </ul>
-//       <ShowFields
-//         token={token}
-//         id={id}
-//         setUserDetails={setUserDetails}
-//         setIsLoading={setIsLoading}
-//       />
-//     </div>
-//   );
-// };
+const Profile = ({ userDetails, id, setUserDetails, setIsLoading }) => {
+  const { token } = React.useContext(UsersContext);
+  console.log(userDetails);
+  return (
+    <>
+      <h1>{userDetails.customer.firstName}'s Profile</h1>
+      {/* {JSON.stringify(userDetails, null, 5)} */}
+      <ul style={stylesUserProfile.link}>
+        <li>Amount: ${userDetails.amount}</li>
+        <li>Email: {userDetails.customer.email}</li>
+        <li>First Name: {userDetails.customer.firstName}</li>
+        <li>Last Name: {userDetails.customer.lastName}</li>
+      </ul>
+    </>
+  );
+};
 
 const UserProfile = ({ token, isLoading, setIsLoading }) => {
   const { state } = useLocation();
   const [userDetails, setUserDetails] = useState();
 
   useEffect(() => {
-    console.log(state);
-    const url =
-      proxyUrl + `https://api.rewardify.ca/customer/${state.userID}/account`;
+    const url = `http://localhost:5000/api/shopify/${state.userID}`;
     axios
       .get(url, {
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${state.userToken.token}`,
+          token: state.userToken.token,
         },
       })
       .then((res) => {
@@ -53,12 +45,24 @@ const UserProfile = ({ token, isLoading, setIsLoading }) => {
 
   return (
     <div style={stylesUserProfile.container}>
-      <h1>User Profile</h1>
-
       {!userDetails ? (
         <div>Loading...</div>
       ) : (
-        <pre>{JSON.stringify(userDetails, null, 2)}</pre>
+        <div styles={stylesUserProfile.showFields.container}>
+          <Profile
+            userDetails={userDetails}
+            id={state.userID}
+            token={token}
+            setUserDetails={setUserDetails}
+            setIsLoading={setIsLoading}
+          />
+          <ShowFields
+            token={token}
+            id={state.userID}
+            setUserDetails={setUserDetails}
+            setIsLoading={setIsLoading}
+          />
+        </div>
       )}
     </div>
   );
@@ -71,8 +75,18 @@ const stylesUserProfile = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     textAlign: 'center',
+  },
+  showFields: {
+    container: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+
+      marginTop: '120px',
+    },
   },
   link: {
     listStyleType: 'none',

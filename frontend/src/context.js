@@ -15,36 +15,15 @@ export const Provider = ({ children }) => {
 
   const fetchUsers = async () => {
     const shopData = await axios.request({
-      url: '/customers/search.json?query=employee&limit=250',
+      url: 'http://localhost:5000/api/shopify',
       method: 'GET',
-      baseURL: `http://localhost:1337/${process.env.REACT_APP_SHOPIFY_URL}`,
-      headers: {
-        'Content-type': 'application/json',
-        authorization: `Basic ${process.env.REACT_APP_SHOPIFY_X_TOKEN}`,
-      },
-    });
-    const rewardifyToken = await axios.request({
-      url: '/oauth/v2/token',
-      method: 'POST',
-      baseURL: `http://localhost:1337/https://api.rewardify.ca`,
       headers: {
         'Content-type': 'application/json',
       },
-      auth: {
-        username: process.env.REACT_APP_USERNAME,
-        password: process.env.REACT_APP_PASSWORD,
-      },
-      data: {
-        grant_type: 'client_credentials',
-      },
     });
-    // console.log(shopData.data.customers);
-    // const data = shopData.data.customers;
-    // console.log([...data]);
-    // const filterUsers = [...data].filter((user) => user.tags === 'employee');
-    // console.log('filtered', filterUsers);
-    setToken(rewardifyToken.data.access_token);
-    setUsers(shopData.data);
+
+    setToken(shopData.data.token.access_token);
+    setUsers(shopData.data.shopify.customers);
     console.log('token and users set');
   };
 

@@ -14,17 +14,13 @@ const Users = () => {
   // const [usersData, setUsersData] = useState(users);
   const [data, setData] = useState([]);
 
-  function ListItemLink(props) {
-    return <ListItem button component="a" {...props} />;
-  }
-
   return (
     <Consumer>
       {({ users, token }) => {
         if (users.length === 0 && data.length === 0) {
           return <div>Loading...</div>;
         } else {
-          setData(users.customers);
+          setData(users);
           return (
             <div style={{ marginTop: '10px' }}>
               <Search users={data} />

@@ -1,16 +1,17 @@
 const express = require('express');
-const cors_proxy = require('cors-anywhere');
 const morgan = require('morgan');
-
 const app = express();
+const shopRoute = require('./routes/shopRoutes');
+require('dotenv').config();
 
-const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.POST || 1337;
+const bodyParser = require('body-parser');
 
-cors_proxy
-  .createServer({
-    origin: [],
-    requireHeader: ['origin', 'x-requested-with'],
-    removeHeaders: ['cookie', 'cookie2'],
-  })
-  .listen(PORT, HOST, () => console.log(`CORS Running on ${HOST}:${PORT}`));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+morgan('dev');
+
+app.use('/', shopRoute);
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

@@ -4,7 +4,7 @@ import { UsersContext } from '../context';
 import axios from 'axios';
 
 const userID = [3781950603395, 3577057411203];
-const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
 
 const BulkUpdate = () => {
   const [dollarAmount, setDollarAmount] = useState('');

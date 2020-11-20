@@ -94,7 +94,7 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
   };
 
   return (
-    <div styles={styles.container}>
+    <>
       {/* Add Credit */}
       <input
         type="text"
@@ -113,47 +113,46 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
       >
         Add Credit
       </button>
-      <div>
-        {/* Deduct Credit */}
-        <input
-          type="text"
-          name="amount"
-          placeholder="Subtract Credit"
-          value={debitAmount || ''}
-          onChange={(e) => handleDebitAmount(e)}
-        />
-        <button
-          onClick={() => {
-            console.log('sub credit clicked');
-            subtractCredit(debitAmount, id);
-            setDebitAmount('');
-            setIsLoading(true);
-          }}
-        >
-          Subtract Credit
-        </button>
-      </div>
-      <div>
-        {/* Replace Credit with a different value */}
-        <input
-          type="text"
-          name="amount"
-          placeholder="Replace Credit"
-          value={resetCredit || ''}
-          onChange={(e) => handleReset(e)}
-        />
-        <button
-          onClick={() => {
-            console.log('reset credit clicked');
-            resetUserCredit(resetCredit, id);
-            setResetCredit('');
-            setIsLoading(true);
-          }}
-        >
-          Reset Credit
-        </button>
-      </div>
-    </div>
+      <br />
+
+      {/* Deduct Credit */}
+      <input
+        type="text"
+        name="amount"
+        placeholder="Subtract Credit"
+        value={debitAmount || ''}
+        onChange={(e) => handleDebitAmount(e)}
+      />
+      <button
+        onClick={() => {
+          console.log('sub credit clicked');
+          subtractCredit(debitAmount, id);
+          setDebitAmount('');
+          setIsLoading(true);
+        }}
+      >
+        Subtract Credit
+      </button>
+      <br />
+      {/* Replace Credit with a different value */}
+      <input
+        type="text"
+        name="amount"
+        placeholder="Replace Credit"
+        value={resetCredit || ''}
+        onChange={(e) => handleReset(e)}
+      />
+      <button
+        onClick={() => {
+          console.log('reset credit clicked');
+          resetUserCredit(resetCredit, id);
+          setResetCredit('');
+          setIsLoading(true);
+        }}
+      >
+        Reset Credit
+      </button>
+    </>
   );
 };
 
@@ -164,6 +163,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    margin: '10px',
   },
 };
