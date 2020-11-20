@@ -21,12 +21,12 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
   };
 
   const updateMe = async (userId) => {
-    const url = `http://localhost:1337/https://api.rewardify.ca/customer/${userId}/account`;
+    const url = `http://localhost:5000/api/rewardify/user/${userId}`;
     axios
       .get(url, {
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${context.token}`,
         },
       })
       .then((res) => {
@@ -36,8 +36,6 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
       .catch((err) => console.log(err));
   };
   const addCredit = async (value, user) => {
-    // let isRendered = false;
-    console.log(context);
     await axios.request({
       url: 'http://localhost:5000/api/rewardify/addcredit',
       method: 'PUT',
@@ -53,23 +51,8 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
         userid: id,
       },
     });
-    // await axios.request({
-    //   url: `/customer/${user}/account/credit`,
-    //   method: 'PUT',
-    //   baseURL: proxyUrl + 'https://api.rewardify.ca/',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     authorization: `Bearer ${token}`,
-    //   },
-    //   data: {
-    //     email: '',
-    //     amount: value,
-    //     memo: 'hello',
-    //     expiresAt: '2021-05-05T10:21:05.349Z',
-    //   },
-    // });
 
-    // updateMe(user);
+    updateMe(user);
   };
   const subtractCredit = async (value, user) => {
     // let isRendered = false;

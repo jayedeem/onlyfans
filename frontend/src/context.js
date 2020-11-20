@@ -22,8 +22,8 @@ export const Provider = ({ children }) => {
       },
     });
 
-    setToken(shopData.data.token.access_token);
-    setUsers(shopData.data.shopify.customers);
+    // setToken(shopData.data.token.access_token);
+    setUsers(shopData.data.users.customers);
     console.log('token and users set');
   };
 
