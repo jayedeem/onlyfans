@@ -8,7 +8,6 @@ import {
   useRouteMatch,
   Redirect,
 } from 'react-router-dom';
-import UserProfile from './UserProfile';
 
 const ShopUsers = ({ users, setUsers, loading, token }) => {
   return (

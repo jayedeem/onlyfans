@@ -15,7 +15,7 @@ export const Provider = ({ children }) => {
 
   const fetchUsers = async () => {
     const shopData = await axios.request({
-      url: 'http://localhost:5000/api/shopify',
+      url: 'http://localhost:5000/api/dashboard',
       method: 'GET',
       headers: {
         'Content-type': 'application/json',

@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { UsersContext } from '../context';
-import { Consumer } from '../context';
+import React, { useState, useEffect } from 'react';
+
 import { useLocation } from 'react-router-dom';
 import ShowFields from './ShowFields';
 import axios from 'axios';
@@ -8,7 +7,6 @@ import axios from 'axios';
 // const proxyUrl = 'http://localhost:1337/';
 
 const Profile = ({ userDetails, id, setUserDetails, setIsLoading }) => {
-  const { token } = React.useContext(UsersContext);
   console.log(userDetails);
   return (
     <>

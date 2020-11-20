@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { UsersContext } from '../context';
 
 const Search = ({ users }) => {
-  // const [user, setUser] = useState(users);
-  const [filterUser, setFilteredUser] = useState();
   const [searchValue, setSearchValue] = useState('');
   const token = useContext(UsersContext);
 

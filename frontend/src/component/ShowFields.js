@@ -2,7 +2,6 @@ import axios from 'axios';
 import React, { useState } from 'react';
 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
-  const [replacementCredit, setReplacementCredit] = React.useState();
   const [amount, setAmount] = React.useState();
   const [debitAmount, setDebitAmount] = useState();
   const [resetCredit, setResetCredit] = useState();

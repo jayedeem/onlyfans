@@ -1,34 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Consumer } from '../context';
 import { UsersContext } from '../context';
 import Search from './Search';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import { Container, Paper } from '@material-ui/core';
 
 const Users = () => {
   const users = React.useContext(UsersContext);
-  console.log('usecontext', users);
-  // const [usersData, setUsersData] = useState(users);
-  const [data, setData] = useState([]);
+  console.log('usecontext', users.users);
 
-  return (
-    <Consumer>
-      {({ users, token }) => {
-        if (users.length === 0 && data.length === 0) {
-          return <div>Loading...</div>;
-        } else {
-          setData(users);
-          return (
-            <div style={{ marginTop: '10px' }}>
-              <Search users={data} />
-            </div>
-          );
-        }
-      }}
-    </Consumer>
+  const [data, _] = useState(users.users);
+
+  return users.users.length === 0 && data.length === 0 ? (
+    <div>Loading...</div>
+  ) : (
+    <div style={{ marginTop: '10px' }}>
+      <Search users={data} />
+    </div>
   );
 };
 
