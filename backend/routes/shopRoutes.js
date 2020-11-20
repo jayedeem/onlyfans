@@ -19,7 +19,7 @@ router.get('/api/shopify/:id', async (req, res) => {
       }
     );
     console.log(data);
-    res.send(data.data);
+    res.status(200).send(data.data);
   } catch (error) {
     console.log(error);
     res.send(error);

@@ -1,7 +1,10 @@
+import React, { useContext, useState } from 'react';
 import axios from 'axios';
-import React, { useState } from 'react';
+import { UsersContext } from '../context';
 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
 const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
+  const context = useContext(UsersContext);
   const [amount, setAmount] = React.useState();
   const [debitAmount, setDebitAmount] = useState();
   const [resetCredit, setResetCredit] = useState();
@@ -34,23 +37,39 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
   };
   const addCredit = async (value, user) => {
     // let isRendered = false;
+    console.log(context);
     await axios.request({
-      url: `/customer/${user}/account/credit`,
+      url: 'http://localhost:5000/api/rewardify/addcredit',
       method: 'PUT',
-      baseURL: proxyUrl + 'https://api.rewardify.ca/',
       headers: {
         'Content-Type': 'application/json',
-        authorization: `Bearer ${token}`,
       },
       data: {
         email: '',
         amount: value,
         memo: 'hello',
         expiresAt: '2021-05-05T10:21:05.349Z',
+        token: context.token,
+        userid: id,
       },
     });
+    // await axios.request({
+    //   url: `/customer/${user}/account/credit`,
+    //   method: 'PUT',
+    //   baseURL: proxyUrl + 'https://api.rewardify.ca/',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     authorization: `Bearer ${token}`,
+    //   },
+    //   data: {
+    //     email: '',
+    //     amount: value,
+    //     memo: 'hello',
+    //     expiresAt: '2021-05-05T10:21:05.349Z',
+    //   },
+    // });
 
-    updateMe(user);
+    // updateMe(user);
   };
   const subtractCredit = async (value, user) => {
     // let isRendered = false;
@@ -107,7 +126,6 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
           console.log('add credit clicked');
           addCredit(amount, id);
           setAmount('');
-          setIsLoading(true);
         }}
       >
         Add Credit
@@ -127,7 +145,6 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
           console.log('sub credit clicked');
           subtractCredit(debitAmount, id);
           setDebitAmount('');
-          setIsLoading(true);
         }}
       >
         Subtract Credit
@@ -146,7 +163,6 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
           console.log('reset credit clicked');
           resetUserCredit(resetCredit, id);
           setResetCredit('');
-          setIsLoading(true);
         }}
       >
         Reset Credit

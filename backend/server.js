@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const app = express();
 const shopRoute = require('./routes/shopRoutes');
 const dashboardRoute = require('./routes/dashboard');
+const rewardifyRoute = require('./routes/rewardifyRoutes');
 require('dotenv').config();
 
 const bodyParser = require('body-parser');
@@ -13,6 +14,7 @@ morgan('tiny');
 
 app.use('/', shopRoute);
 app.use('/', dashboardRoute);
+app.use('/', rewardifyRoute);
 
 const PORT = process.env.PORT || 5000;
 
