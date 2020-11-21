@@ -21,7 +21,7 @@ const ShowFields = ({ token, id, setUserDetails, setIsLoading }) => {
   };
 
   const updateMe = async (userId) => {
-    const url = `http://localhost:5000/api/rewardify/user/${userId}`;
+    const url = `/api/rewardify/user/${userId}`;
     axios
       .get(url, {
         headers: {

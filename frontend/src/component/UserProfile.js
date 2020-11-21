@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect, useContext } from 'react';
+import { UsersContext } from '../context';
 import { useLocation } from 'react-router-dom';
 import ShowFields from './ShowFields';
 import axios from 'axios';
@@ -25,9 +25,11 @@ const Profile = ({ userDetails, id, setUserDetails, setIsLoading }) => {
 const UserProfile = ({ token, isLoading, setIsLoading }) => {
   const { state } = useLocation();
   const [userDetails, setUserDetails] = useState();
+  const context = useContext(UsersContext);
 
   useEffect(() => {
-    const url = `http://localhost:5000/api/shopify/${state.userID}`;
+    console.log(state);
+    const url = `/api/rewardify/user/${state.userID}`;
     axios
       .get(url, {
         headers: {

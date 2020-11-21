@@ -15,16 +15,16 @@ export const Provider = ({ children }) => {
 
   const fetchUsers = async () => {
     const shopData = await axios.request({
-      url: 'http://localhost:5000/api/dashboard',
+      url: '/api/dashboard',
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
       },
     });
-
-    // setToken(shopData.data.token.access_token);
-    setUsers(shopData.data.users.customers);
-    console.log('token and users set');
+    console.log(shopData);
+    setToken(shopData.data.token.access_token);
+    setUsers(shopData.data);
+    // console.log('token and users set');
   };
 
   return (

@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+
 router.get('/api/dashboard', async (req, res) => {
   try {
     const shopifyData = await axios.request({
@@ -26,13 +27,19 @@ router.get('/api/dashboard', async (req, res) => {
         grant_type: 'client_credentials',
       },
     });
+
+    console.log(rewardifyToken);
+
+    // const accessToken = jwt.sign(
+    //   rewardifyToken.data.token,
+    //   process.env.ACCESS_TOKEN_SECRET
+    // );
     const data = {
-      token: rewardifyToken.data,
-      shopify: shopifyData.data,
+      token: rewardifyToken,
+      shopify: shopifyData,
     };
-    // res.send(data);
-    const accessToken = jwt.sign(data.token, process.env.ACCESS_TOKEN_SECRET);
-    res.send({ accessToken: accessToken, users: data.shopify });
+    console.log(data);
+    res.send(data);
   } catch (error) {
     res.send(error);
   }

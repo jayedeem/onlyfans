@@ -1,7 +1,6 @@
 import React from 'react';
 
 const HomePage = () => {
-
   return (
     <div style={stylesHome}>
       <h1>Home Page</h1>

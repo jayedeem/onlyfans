@@ -32,24 +32,24 @@ router.put('/api/rewardify/addcredit', async (req, res) => {
 router.get('/api/rewardify/user/:id', async (req, res) => {
   const { token } = req.headers;
   const { id } = req.params;
-  console.log('retrieveme headers', req.headers);
-  console.log('retrieveme params', req.params);
-  // try {
-  //   const data = await axios.get(
-  //     `${process.env.REWARDIFY_URL}/customer/${id}/account`,
-  //     {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //     }
-  //   );
-  //   console.log(data);
-  //   res.status(200).send(data.data);
-  // } catch (error) {
-  //   console.log(error);
-  //   res.send(error);
-  // }
+  console.log('retrieveme headers', token);
+  console.log('retrieveme params', id);
+  try {
+    const data = await axios.get(
+      `${process.env.REWARDIFY_URL}/customer/${id}/account`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(data);
+    res.status(200).send(data.data);
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
 });
 
 router.put('/api/rewardify/subcredit', (req, res) => {
