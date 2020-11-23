@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Pagination, PaginationItem } from '@material-ui/lab';
 
 const Paginate = ({ usersPerPage, totalUsers, paginate }) => {
+  const [click, setClick] = useState(true);
   const pageNumbers = [];
 
   const numberOfPages = Math.ceil(totalUsers / usersPerPage);
@@ -8,20 +10,22 @@ const Paginate = ({ usersPerPage, totalUsers, paginate }) => {
     pageNumbers.push(i);
   }
 
+  //
   return (
-    <nav>
-      <ul style={styles.paginate}>
-        {pageNumbers.map((number) => {
-          return (
-            <li
-              key={number}
-              style={{ listStyleType: 'none', cursor: 'pointer' }}
-            >
-              <a onClick={() => paginate(number)}>{number}</a>
-            </li>
-          );
-        })}
-      </ul>
+    <nav style={styles.paginate}>
+      {/* <Pagination count={numberOfPages} /> */}
+      {pageNumbers.map((number) => {
+        return (
+          <PaginationItem
+            page={number}
+            onClick={() => {
+              paginate(number);
+            }}
+            type="page"
+            variant="text"
+          />
+        );
+      })}
     </nav>
   );
 };

@@ -24,24 +24,24 @@ const Profile = ({ userDetails, id, setUserDetails, setIsLoading }) => {
 
 const UserProfile = ({ token, isLoading, setIsLoading }) => {
   const { state } = useLocation();
-  const [userDetails, setUserDetails] = useState();
+  const [userDetails, setUserDetails] = useState([]);
   const context = useContext(UsersContext);
 
   useEffect(() => {
-    console.log(state);
     const url = `/api/rewardify/user/${state.userID}`;
     axios
       .get(url, {
         headers: {
           'Content-Type': 'application/json',
-          token: state.userToken.token,
+          token: context.token,
         },
       })
       .then((res) => {
+        console.log(res.data);
         setUserDetails(res.data);
       })
       .catch((err) => console.log(err));
-  }, [state]);
+  }, [context.token, state.userID]);
 
   return (
     <div style={stylesUserProfile.container}>
