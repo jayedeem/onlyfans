@@ -28,17 +28,17 @@ router.get('/api/dashboard', async (req, res) => {
       },
     });
 
-    console.log(rewardifyToken);
+    // console.log('rewardifyToken', rewardifyToken);
 
     // const accessToken = jwt.sign(
     //   rewardifyToken.data.token,
     //   process.env.ACCESS_TOKEN_SECRET
     // );
     const data = {
-      token: rewardifyToken,
-      shopify: shopifyData,
+      token: rewardifyToken.data,
+      shopify: shopifyData.data,
     };
-    console.log(data);
+    console.log('data', data);
     res.send(data);
   } catch (error) {
     res.send(error);

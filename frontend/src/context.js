@@ -23,8 +23,11 @@ export const Provider = ({ children }) => {
     });
     console.log(shopData);
     setToken(shopData.data.token.access_token);
-    setUsers(shopData.data);
-    // console.log('token and users set');
+    const sortUsers = shopData.data.shopify.customers.sort((a, b) =>
+      a.first_name > b.first_name ? 1 : -1
+    );
+    setUsers(sortUsers);
+    console.log('token and users set');
   };
 
   return (
