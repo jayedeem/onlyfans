@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { UsersContext } from '../context';
 import Search from './Search';
 import Paginate from './Pagination';
+import DataTable from './DataTable';
 
 const Users = () => {
   const context = React.useContext(UsersContext);
   const [currentPage, setCurrentPage] = useState(1);
-  // const [numOfusers, setNumofUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [usersPerPage, setUsersPerPage] = useState(30);
-
-  // const [data, _] = useState(users.users);
+  const [usersPerPage, setUsersPerPage] = useState(15);
+  const [currentUsersPerPage, setCurrentUsersPerPage] = useState();
 
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
@@ -23,15 +22,15 @@ const Users = () => {
   return context.users.length === 0 && currentUsers.length === 0 ? (
     <div>Loading...</div>
   ) : (
-    <>
-      <Search currentUsers={currentUsers} />
-
+    <div style={stylesUsers.container}>
+      <DataTable currentUsersPerPage={currentUsers} />
+      {/* <Search currentUsers={currentUsers} />
       <Paginate
         usersPerPage={usersPerPage}
         totalUsers={context.users.length}
         paginate={paginate}
-      />
-    </>
+      /> */}
+    </div>
   );
 };
 
