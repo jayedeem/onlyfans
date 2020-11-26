@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const app = express();
 const dotenv = require('dotenv');
-
+const verify = require('./verifyToken');
 const shopRoute = require('./routes/shopRoutes');
 const dashboardRoute = require('./routes/dashboard');
 const rewardifyRoute = require('./routes/rewardifyRoutes');
@@ -12,7 +12,7 @@ const authRoute = require('./routes/auth');
 
 dotenv.config();
 mongoose.connect(
-  'mongodb+srv://jayedeem:b9wK8zpo2NG45wRf@cms.faye2.mongodb.net/cms?retryWrites=true&w=majority',
+  process.env.MONGO_DB,
   { useNewUrlParser: true, useUnifiedTopology: true },
   () => {
     try {
@@ -28,9 +28,9 @@ app.use(express.json());
 morgan('tiny');
 
 app.use('/auth', cors(), authRoute);
-app.use('/', cors(), shopRoute);
-app.use('/', cors(), dashboardRoute);
-app.use('/', cors(), rewardifyRoute);
+app.use('/', verify, shopRoute);
+app.use('/', verify, dashboardRoute);
+app.use('/', verify, rewardifyRoute);
 
 const PORT = process.env.PORT || 1337;
 
