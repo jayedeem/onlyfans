@@ -7,8 +7,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Modal from '@material-ui/core/Modal';
+
 import { Link } from 'react-router-dom';
+
+import UserModal from './Modal';
 
 const useStyles = makeStyles({
   table: {
@@ -41,20 +43,22 @@ const MouseOut = (e) => {
   e.target.style.background = '';
 };
 
-// const SomeModal = ({ toggleModal }) => {
-
-// };
-
 export default function BasicTable({ currentUsersPerPage }) {
   const classes = useStyles();
   const [showModal, setShowModal] = React.useState(false);
+  const [modalInfo, setModalInfo] = React.useState('');
 
-  React.useEffect(() => {
-    console.log(currentUsersPerPage);
-  }, []);
+  // React.useEffect(() => {
+  //   console.log(currentUsersPerPage);
+  // }, []);
 
   const handleToggle = () => {
     setShowModal(!showModal);
+    console.log();
+  };
+  const handleUserId = (id) => {
+    console.log('handleUserId', id);
+    setModalInfo(id);
   };
 
   return (
@@ -75,7 +79,10 @@ export default function BasicTable({ currentUsersPerPage }) {
                 key={row.id}
                 className={classes.link}
                 component={Link}
-                onClick={handleToggle}
+                onClick={() => {
+                  handleUserId(row.id);
+                  handleToggle();
+                }}
               >
                 <TableCell component="tr" scope="row">
                   {row.id}
@@ -88,34 +95,11 @@ export default function BasicTable({ currentUsersPerPage }) {
           </TableBody>
         </Table>
       </TableContainer>
-
-      <Modal
-        open={showModal}
-        onClose={handleToggle}
-        style={{
-          outline: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <div
-          style={{
-            width: '400px',
-            color: '#fff',
-            background: 'purple',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-          }}
-        >
-          <h1>Hello</h1>
-          <p>Hello</p>
-          <h1>Hello</h1>
-        </div>
-      </Modal>
+      <UserModal
+        user={modalInfo}
+        handleToggle={handleToggle}
+        showModal={showModal}
+      />
     </>
   );
 }

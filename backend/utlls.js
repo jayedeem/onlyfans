@@ -1,8 +1,8 @@
 const CronJob = require('cron').CronJob;
 const axios = require('axios');
-const client = require('./db/redis');
+const redisClient = require('./db/redis');
 
-const getToken = new CronJob('1 * * * * *', async () => {
+const getToken = new CronJob('* * * * * ', async () => {
   const rewardifyToken = await axios.request({
     method: 'POST',
     url: `https://api.rewardify.ca/oauth/v2/token`,
@@ -17,9 +17,27 @@ const getToken = new CronJob('1 * * * * *', async () => {
       grant_type: 'client_credentials',
     },
   });
-  const data = rewardifyToken.data.access_token;
+
+  const shopifyData = await axios.request({
+    url: process.env.SHOPIFY_TOKEN_ACCESS_URL,
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json',
+      authorization: 'Basic ' + process.env.SHOPIFY_X_TOKEN,
+    },
+  });
+
+  const rewardifyTokenData = rewardifyToken.data.access_token;
+
+  const shopify = shopifyData.data;
+
+  const set = (key, value) => {
+    redisClient.set(key, JSON.stringify(value), 'ex', 3600);
+  };
+
+  await set('shopifyData', shopify);
   console.log('token set');
-  await client.set('rewardifyToken', data);
+  await redisClient.set('rewardifyToken', rewardifyTokenData, 'ex', 3600);
 });
 getToken.start();
-module.exports = getToken;
+module.exports = { getToken };

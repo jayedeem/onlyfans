@@ -22,26 +22,25 @@ const Profile = ({ userDetails, id, setUserDetails, setIsLoading }) => {
   );
 };
 
-const UserProfile = ({ token, isLoading, setIsLoading }) => {
+const UserProfile = ({ token, isLoading, setIsLoading, user }) => {
   const { state } = useLocation();
   const [userDetails, setUserDetails] = useState([]);
   const context = useContext(UsersContext);
 
-  useEffect(() => {
-    const url = `/api/rewardify/user/${state.userID}`;
-    axios
-      .get(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          token: context.token,
-        },
-      })
-      .then((res) => {
-        console.log(res.data);
-        setUserDetails(res.data);
-      })
-      .catch((err) => console.log(err));
-  }, [context.token, state.userID]);
+  // useEffect(() => {
+  //   const url = `/api/rewardify/user/${state.userID}`;
+  //   axios
+  //     .get(url, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //     })
+  //     .then((res) => {
+  //       console.log(res.data);
+  //       setUserDetails(res.data);
+  //     })
+  //     .catch((err) => console.log(err));
+  // }, [context.token, state.userID]);
 
   return (
     <div style={stylesUserProfile.container}>
@@ -49,19 +48,18 @@ const UserProfile = ({ token, isLoading, setIsLoading }) => {
         <div>Loading...</div>
       ) : (
         <div styles={stylesUserProfile.showFields.container}>
-          <Profile
+          {user}
+          {/* <Profile
             userDetails={userDetails}
             id={state.userID}
-            token={token}
             setUserDetails={setUserDetails}
             setIsLoading={setIsLoading}
           />
           <ShowFields
-            token={token}
             id={state.userID}
             setUserDetails={setUserDetails}
             setIsLoading={setIsLoading}
-          />
+          /> */}
         </div>
       )}
     </div>

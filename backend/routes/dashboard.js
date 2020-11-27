@@ -2,43 +2,41 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const redisClient = require('../db/redis');
 
 router.get('/api/dashboard', async (req, res) => {
   try {
-    const shopifyData = await axios.request({
-      url: process.env.SHOPIFY_TOKEN_ACCESS_URL,
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Basic ' + process.env.SHOPIFY_X_TOKEN,
-      },
-    });
-    const rewardifyToken = await axios.request({
-      method: 'POST',
-      url: `https://api.rewardify.ca/oauth/v2/token`,
-      headers: {
-        'Content-type': 'application/json',
-      },
-      auth: {
-        username: process.env.USERNAME,
-        password: process.env.PASSWORD,
-      },
-      data: {
-        grant_type: 'client_credentials',
-      },
-    });
+    // const shopifyData = await axios.request({
+    //   url: process.env.SHOPIFY_TOKEN_ACCESS_URL,
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-type': 'application/json',
+    //     authorization: 'Basic ' + process.env.SHOPIFY_X_TOKEN,
+    //   },
+    // });
 
-    // console.log('rewardifyToken', rewardifyToken);
-
-    // const accessToken = jwt.sign(
-    //   rewardifyToken.data.token,
-    //   process.env.ACCESS_TOKEN_SECRET
-    // );
+    const rewardifyToken = await redisClient.get(
+      'rewardifyToken',
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          return result;
+        }
+      }
+    );
+    const shopifyData = await redisClient.get('shopifyData', (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        return result;
+      }
+    });
     const data = {
-      token: rewardifyToken.data,
-      shopify: shopifyData.data,
+      token: rewardifyToken,
+      shopify: shopifyData,
     };
-    console.log('data', data);
+    // console.log('data', data);
     res.send(data);
   } catch (error) {
     res.send(error);

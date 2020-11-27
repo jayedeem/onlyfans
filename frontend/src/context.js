@@ -5,9 +5,8 @@ export const UsersContext = createContext();
 
 export const Provider = ({ children }) => {
   const [users, setUsers] = useState([]);
-  const [token, setToken] = useState();
 
-  const providerValue = React.useMemo(() => ({ users, token }), [users, token]);
+  const providerValue = React.useMemo(() => ({ users }), [users]);
 
   useEffect(() => {
     fetchUsers();
@@ -21,13 +20,17 @@ export const Provider = ({ children }) => {
         'Content-type': 'application/json',
       },
     });
-    console.log(shopData);
-    setToken(shopData.data.token.access_token);
-    const sortUsers = shopData.data.shopify.customers.sort((a, b) =>
+
+    const { shopify } = shopData.data;
+    const parsedUsers = JSON.parse(shopify);
+
+    console.log(parsedUsers);
+    const sortUsers = parsedUsers.customers.sort((a, b) =>
       a.first_name > b.first_name ? 1 : -1
     );
     setUsers(sortUsers);
-    console.log('token and users set');
+    // setUsers(sortUsers);
+    // console.log('token and users set');
   };
 
   return (

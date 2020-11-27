@@ -1,9 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const redisClient = require('../db/redis');
 require('dotenv').config();
 
 router.put('/api/rewardify/addcredit', async (req, res) => {
+  const rewardifyToken = await redisClient.get(
+    'rewardifyToken',
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        return result;
+      }
+    }
+  );
   const { email, amount, memo, expiresAt, token, userid } = req.body;
   // console.log(req.body);
   console.log('headers', req.headers);
@@ -14,7 +25,7 @@ router.put('/api/rewardify/addcredit', async (req, res) => {
       baseURL: 'https://api.rewardify.ca/',
       headers: {
         'Content-Type': 'application/json',
-        authorization: `Bearer ${token}`,
+        authorization: `Bearer ${rewardifyToken}`,
       },
       data: {
         email,
@@ -30,6 +41,16 @@ router.put('/api/rewardify/addcredit', async (req, res) => {
 });
 
 router.get('/api/rewardify/user/:id', async (req, res) => {
+  const rewardifyToken = await redisClient.get(
+    'rewardifyToken',
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        return result;
+      }
+    }
+  );
   const { token } = req.headers;
   const { id } = req.params;
   console.log('retrieveme headers', token);
@@ -40,7 +61,7 @@ router.get('/api/rewardify/user/:id', async (req, res) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${token}`,
+          authorization: `Bearer ${rewardifyToken}`,
         },
       }
     );
