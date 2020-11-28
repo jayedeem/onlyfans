@@ -24,13 +24,11 @@ export const Provider = ({ children }) => {
     const { shopify } = shopData.data;
     const parsedUsers = JSON.parse(shopify);
 
-    console.log(parsedUsers);
     const sortUsers = parsedUsers.customers.sort((a, b) =>
       a.first_name > b.first_name ? 1 : -1
     );
+    console.log(sortUsers);
     setUsers(sortUsers);
-    // setUsers(sortUsers);
-    // console.log('token and users set');
   };
 
   return (

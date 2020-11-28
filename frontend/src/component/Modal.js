@@ -28,24 +28,38 @@ function UserModal({ showModal, handleToggle, user }) {
         justifyContent: 'center',
       }}
     >
-      <div
-        style={{
-          width: '700px',
-          height: 500,
-          color: 'black',
-          background: 'white',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-        }}
-      >
-        <h1>Hello</h1>
-        <pre>{JSON.stringify(userDetails, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(userDetails, null, 2)}</pre> */}
 
-        {/* <li>{userDetails.customer.firstName}</li> */}
-      </div>
+      {!userDetails ? (
+        <div>Loading...</div>
+      ) : (
+        <div
+          style={{
+            width: '700px',
+            height: 500,
+            color: 'black',
+            background: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+          }}
+        >
+          <h1>
+            {userDetails.customer.firstName} {userDetails.customer.lastName}'s
+            Details
+          </h1>
+
+          <li>Current Balance: ${userDetails.amount}</li>
+          <li>{userDetails.customer.email}</li>
+          <label>Add Credit</label>
+
+          <input type="text" placeholder="Enter An amount" />
+
+          <button>Submit</button>
+        </div>
+      )}
     </Modal>
   );
 }

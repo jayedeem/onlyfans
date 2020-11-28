@@ -51,11 +51,9 @@ router.get('/api/rewardify/user/:id', async (req, res) => {
       }
     }
   );
-  const { token } = req.headers;
-  const { id } = req.params;
-  console.log('retrieveme headers', token);
-  console.log('retrieveme params', id);
+
   try {
+    const { id } = req.params;
     const data = await axios.get(
       `${process.env.REWARDIFY_URL}/customer/${id}/account`,
       {
@@ -65,7 +63,7 @@ router.get('/api/rewardify/user/:id', async (req, res) => {
         },
       }
     );
-    console.log(data);
+
     res.status(200).send(data.data);
   } catch (error) {
     console.log(error);

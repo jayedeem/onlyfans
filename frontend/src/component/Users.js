@@ -8,7 +8,7 @@ const Users = () => {
   const context = React.useContext(UsersContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [usersPerPage, setUsersPerPage] = useState(15);
+  const [usersPerPage, setUsersPerPage] = useState(30);
   const [currentUsersPerPage, setCurrentUsersPerPage] = useState();
 
   const indexOfLastUser = currentPage * usersPerPage;

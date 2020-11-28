@@ -6,15 +6,6 @@ const redisClient = require('../db/redis');
 
 router.get('/api/dashboard', async (req, res) => {
   try {
-    // const shopifyData = await axios.request({
-    //   url: process.env.SHOPIFY_TOKEN_ACCESS_URL,
-    //   method: 'GET',
-    //   headers: {
-    //     'Content-type': 'application/json',
-    //     authorization: 'Basic ' + process.env.SHOPIFY_X_TOKEN,
-    //   },
-    // });
-
     const rewardifyToken = await redisClient.get(
       'rewardifyToken',
       (err, result) => {
