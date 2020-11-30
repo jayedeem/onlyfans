@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const verify = require('./verifyToken');
+const cached = require('./middleware/cached');
 
 const shopRoute = require('./routes/shopRoutes');
 const dashboardRoute = require('./routes/dashboard');
@@ -35,10 +36,10 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/auth', authRoute);
-app.use('/', shopRoute);
-// app.use('/', verify, dashboardRoute);
-app.use('/', dashboardRoute);
-app.use('/', rewardifyRoute);
+app.use('/', verify, cached, dashboardRoute);
+// app.use('/', shopRoute);
+
+app.use('/', verify, cached, rewardifyRoute);
 
 const PORT = process.env.PORT || 1337;
 

@@ -1,13 +1,20 @@
 const axios = require('axios');
-const redisClient = require('./db/redis');
+const redisClient = require('../db/redis');
 
 let cacheTime;
 let cacheData;
 
-const getToken = async (req, res, next) => {
+module.exports = async function (req, res, next) {
   if (cacheTime && cacheTime > Date.now() - 60 * 10000 * 59) {
-    const getData = redisClient.get('cacheData');
-    return res.json(getData);
+    const getCached = await redisClient.get('cacheData', (err, result) => {
+      if (result) {
+        return res.send({ api: JSON.parse(result) });
+      } else {
+        console.log(err);
+      }
+    });
+    console.log(getCached);
+    return res.send(getCached);
   }
   try {
     const rewardifyToken = await axios.request({
@@ -38,28 +45,21 @@ const getToken = async (req, res, next) => {
 
     const shopify = shopifyData.data;
 
-    const set = (key, value) => {
-      redisClient.set(key, JSON.stringify(value), 'ex', 3600);
-    };
-
-    // await set('shopifyData', shopify);
-
     cacheData = {
       rewardifyTokenData,
       shopify,
     };
     cacheTime = Date.now();
     cacheData.cacheTime = cacheTime;
+    const someData = JSON.stringify(cacheData);
 
-    console.log(cacheData);
+    await redisClient.set('cacheData', someData, 'ex', 3600);
 
-    await redisClient.set('cacheData', cacheData, 'ex', 3600);
-    // await redisClient.set('rewardifyToken', rewardifyTokenData, 'ex', 3600);
-    console.log('token');
+    const getCached = await redisClient.get('cacheData');
+
+    return res.send({ data: JSON.parse(getCached) });
   } catch (error) {
     console.log(error);
   }
   next();
 };
-
-module.exports = { getToken };
