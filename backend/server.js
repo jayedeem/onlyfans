@@ -13,6 +13,7 @@ const cached = require('./middleware/cached');
 const dashboardRoute = require('./routes/dashboard');
 const rewardifyRoute = require('./routes/rewardifyRoutes');
 const authRoute = require('./routes/auth');
+
 dotenv.config();
 morgan('tiny');
 
@@ -35,8 +36,8 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/auth', authRoute);
-app.use('/', cached, dashboardRoute);
-app.use('/', cached, rewardifyRoute);
+app.use('/api/dashboard', cached, dashboardRoute);
+app.use('/api/rewardify', cached, rewardifyRoute);
 
 const PORT = process.env.PORT || 1337;
 

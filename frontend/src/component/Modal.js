@@ -1,24 +1,29 @@
 import React from 'react';
 import Modal from '@material-ui/core/Modal';
 import axios from 'axios';
-import { render } from 'react-dom';
 
 function UserModal({ showModal, handleToggle, user }) {
-  const [userDetails, setUserDetails] = React.useState({});
+  const [userDetails, setUserDetails] = React.useState([]);
 
   React.useEffect(() => {
-    let rendered = true;
     getUserDetails();
-    return (rendered = false);
+    console.log(userDetails);
   }, [user]);
 
   async function getUserDetails() {
-    const userData = await axios.get(
+    const { data } = await axios.get(
       `http://localhost:1337/api/rewardify/user/${user}`
     );
-    // console.log(userData.data);
-    console.log(userData);
-    setUserDetails(userData);
+
+    if (!data) {
+      return console.log('no data found');
+    }
+    let dataArray = [];
+    for (let [key, value] of Object.entries(data.customer)) {
+      dataArray.push({ [key]: value });
+    }
+    dataArray.push({ amount: data.amount });
+    setUserDetails(dataArray);
   }
 
   return (
@@ -32,15 +37,13 @@ function UserModal({ showModal, handleToggle, user }) {
         justifyContent: 'center',
       }}
     >
-      {/* <pre>{JSON.stringify(userDetails, null, 2)}</pre> */}
-
-      {!userDetails ? (
+      {userDetails.length === 0 ? (
         <div>Loading...</div>
       ) : (
         <div
           style={{
             width: '700px',
-            height: 500,
+            height: 800,
             color: 'black',
             background: 'white',
             display: 'flex',
@@ -50,19 +53,14 @@ function UserModal({ showModal, handleToggle, user }) {
             position: 'relative',
           }}
         >
-          <pre>{JSON.stringify(userDetails, null, 2)}</pre>
-          {/* <h1>
-            {userDetails.customer.firstName} {userDetails.customer.lastName}'s
-            Details
-          </h1>
-
-          <li>Current Balance: ${userDetails.amount}</li>
-          <li>{userDetails.customer.email}</li> */}
-          <label>Add Credit</label>
-
-          <input type="text" placeholder="Enter An amount" />
-
-          <button>Submit</button>
+          {/* <pre>{JSON.stringify(userDetails, null, 2)}</pre> */}
+          {userDetails.map((item) => {
+            return (
+              <li>
+                {item.firstName} {item.lastName}
+              </li>
+            );
+          })}
         </div>
       )}
     </Modal>
