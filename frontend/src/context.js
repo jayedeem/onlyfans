@@ -22,7 +22,7 @@ export const Provider = ({ children }) => {
     });
 
     const { api } = shopData.data;
-
+    // Sort Users alphabetically
     const sortUsers = api.customers.sort((a, b) =>
       a.first_name > b.first_name ? 1 : -1
     );

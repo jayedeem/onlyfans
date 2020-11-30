@@ -16,6 +16,7 @@ const authRoute = require('./routes/auth');
 
 dotenv.config();
 morgan('tiny');
+const PORT = process.env.PORT || 1337;
 
 dotenv.config();
 mongoose.connect(
@@ -36,9 +37,8 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/auth', authRoute);
-app.use('/api/dashboard', cached, dashboardRoute);
-app.use('/api/rewardify', cached, rewardifyRoute);
-
-const PORT = process.env.PORT || 1337;
+// Verify then check cache time
+app.use('/api/dashboard', verify, cached, dashboardRoute);
+app.use('/api/rewardify', verify, cached, rewardifyRoute);
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

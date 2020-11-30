@@ -53,7 +53,7 @@ function UserModal({ showModal, handleToggle, user }) {
             position: 'relative',
           }}
         >
-          {/* <pre>{JSON.stringify(userDetails, null, 2)}</pre> */}
+          {/* Rendering 12 objects for some reason */}
           {userDetails.map((item) => {
             return (
               <li>

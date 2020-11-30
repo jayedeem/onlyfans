@@ -4,6 +4,7 @@ const router = express.Router();
 const redisClient = require('../db/redis');
 
 router.get('/', async (req, res) => {
+  // Send data to frontend
   const cacheData = await redisClient.get('cacheData');
   const { shopify } = await JSON.parse(cacheData);
   console.log(shopify.customers);
