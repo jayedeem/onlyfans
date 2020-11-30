@@ -4,8 +4,8 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const redisClient = require('../db/redis');
 
-router.get('/api/dashboard', (req, res) => {
-  return res.send('hello');
+router.get('/api/dashboard/1', (req, res, next, data) => {
+  console.log(req.cached.api);
 });
 
 module.exports = router;

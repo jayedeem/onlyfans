@@ -1,23 +1,20 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const { getToken } = require('./utlls');
 const morgan = require('morgan');
 
-const cors = require('cors');
+// Middleware
 const dotenv = require('dotenv');
-const verify = require('./verifyToken');
+const cors = require('cors');
+const verify = require('./middleware/verifyToken');
 const cached = require('./middleware/cached');
 
-const shopRoute = require('./routes/shopRoutes');
+// Routes
 const dashboardRoute = require('./routes/dashboard');
 const rewardifyRoute = require('./routes/rewardifyRoutes');
 const authRoute = require('./routes/auth');
 dotenv.config();
 morgan('tiny');
-const app = express();
-
-app.set(getToken);
 
 dotenv.config();
 mongoose.connect(
@@ -32,14 +29,14 @@ mongoose.connect(
   }
 );
 
+const app = express();
+
 app.use(express.json());
 app.use(cors());
 
 app.use('/auth', authRoute);
-app.use('/', verify, cached, dashboardRoute);
-// app.use('/', shopRoute);
-
-app.use('/', verify, cached, rewardifyRoute);
+app.use('/', cached, dashboardRoute);
+app.use('/', cached, rewardifyRoute);
 
 const PORT = process.env.PORT || 1337;
 

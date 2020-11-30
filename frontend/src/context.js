@@ -18,13 +18,14 @@ export const Provider = ({ children }) => {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
+        'auth-token':
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZmM1MzRkM2IwOTA5MWI5ZmE4ZTViNjQiLCJpYXQiOjE2MDY3NTk2NTZ9.QP1hgJgQKkcCX7xkc73ZdlKUj-AfB2foJTW1031lcuo',
       },
     });
 
-    const { shopify } = shopData.data;
-    const parsedUsers = JSON.parse(shopify);
+    const { api } = shopData.data;
 
-    const sortUsers = parsedUsers.customers.sort((a, b) =>
+    const sortUsers = api.shopify.customers.sort((a, b) =>
       a.first_name > b.first_name ? 1 : -1
     );
     console.log(sortUsers);

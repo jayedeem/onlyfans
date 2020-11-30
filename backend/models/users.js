@@ -18,6 +18,10 @@ const usersSchema = new Schema(
       min: 6,
       max: 1024,
     },
+    role: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );

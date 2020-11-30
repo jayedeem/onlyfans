@@ -5,17 +5,13 @@ let cacheTime;
 let cacheData;
 
 module.exports = async function (req, res, next) {
-  if (cacheTime && cacheTime > Date.now() - 60 * 10000 * 59) {
-    const getCached = await redisClient.get('cacheData', (err, result) => {
-      if (result) {
-        return res.send({ api: JSON.parse(result) });
-      } else {
-        console.log(err);
-      }
-    });
-    console.log(getCached);
-    return res.send(getCached);
+  const dataToParse = await redisClient.get('cacheData');
+  const api = await JSON.parse(dataToParse);
+
+  if (api && cacheTime && api.cacheTime > Date.now() - 30 * 10000 * 59) {
+    return next();
   }
+
   try {
     const rewardifyToken = await axios.request({
       method: 'POST',
@@ -55,11 +51,8 @@ module.exports = async function (req, res, next) {
 
     await redisClient.set('cacheData', someData, 'ex', 3600);
 
-    const getCached = await redisClient.get('cacheData');
-
-    return res.send({ data: JSON.parse(getCached) });
+    return next();
   } catch (error) {
     console.log(error);
   }
-  next();
 };

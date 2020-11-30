@@ -40,34 +40,25 @@ router.put('/api/rewardify/addcredit', async (req, res) => {
   }
 });
 
-router.get('/api/rewardify/user/:id', async (req, res) => {
-  const rewardifyToken = await redisClient.get(
-    'rewardifyToken',
-    (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        return result;
-      }
-    }
-  );
-
+router.get('/api/rewardify/user/:id', async (req, res, next) => {
   try {
+    const cacheData = await redisClient.get('cacheData');
+    const { rewardifyTokenData } = await JSON.parse(cacheData);
+
     const { id } = req.params;
-    const data = await axios.get(
+    const { data } = await axios.get(
       `${process.env.REWARDIFY_URL}/customer/${id}/account`,
       {
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${rewardifyToken}`,
+          authorization: `Bearer ${rewardifyTokenData}`,
         },
       }
     );
-
-    res.status(200).send(data.data);
+    const user = Object.entries(data);
+    return res.status(200).send(user);
   } catch (error) {
     console.log(error);
-    res.send(error);
   }
 });
 
