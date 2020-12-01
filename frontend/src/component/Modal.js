@@ -2,17 +2,26 @@ import React from 'react';
 import Modal from '@material-ui/core/Modal';
 import axios from 'axios';
 
-function UserModal({ showModal, handleToggle, user }) {
+const storedJwt = localStorage.getItem('token');
+
+function UserModal({ showModal, handleToggle, user, token }) {
   const [userDetails, setUserDetails] = React.useState([]);
 
   React.useEffect(() => {
-    getUserDetails();
+    console.log(token);
+    getUserDetails(token);
     console.log(userDetails);
   }, [user]);
 
-  async function getUserDetails() {
+  async function getUserDetails(token) {
     const { data } = await axios.get(
-      `http://localhost:1337/api/rewardify/user/${user}`
+      `http://localhost:1337/api/rewardify/user/${user}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': storedJwt,
+        },
+      }
     );
 
     if (!data) {

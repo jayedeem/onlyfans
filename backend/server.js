@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-
+const session = require('express-session');
 const morgan = require('morgan');
-
+const cookieParser = require('cookie-parser');
 // Middleware
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -39,6 +39,6 @@ app.use(cors());
 app.use('/auth', authRoute);
 // Verify then check cache time
 app.use('/api/dashboard', verify, cached, dashboardRoute);
-app.use('/api/rewardify', verify, cached, rewardifyRoute);
+app.use('/api/rewardify', verify, rewardifyRoute);
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

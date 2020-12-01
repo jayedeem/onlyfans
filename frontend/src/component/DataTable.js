@@ -43,14 +43,14 @@ const MouseOut = (e) => {
   e.target.style.background = '';
 };
 
-export default function BasicTable({ currentUsersPerPage }) {
+export default function BasicTable({ currentUsersPerPage, token }) {
   const classes = useStyles();
   const [showModal, setShowModal] = React.useState(false);
   const [modalInfo, setModalInfo] = React.useState('');
 
-  // React.useEffect(() => {
-  //   console.log(currentUsersPerPage);
-  // }, []);
+  React.useEffect(() => {
+    console.log('token', token);
+  }, []);
 
   const handleToggle = () => {
     setShowModal(!showModal);
@@ -99,6 +99,7 @@ export default function BasicTable({ currentUsersPerPage }) {
         user={modalInfo}
         handleToggle={handleToggle}
         showModal={showModal}
+        token={token}
       />
     </>
   );

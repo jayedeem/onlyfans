@@ -4,8 +4,8 @@ import Search from './Search';
 import Paginate from './Pagination';
 import DataTable from './DataTable';
 
-const Users = () => {
-  const context = React.useContext(UsersContext);
+const Users = ({ users, token }) => {
+  // const context = React.useContext(UsersContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [usersPerPage, setUsersPerPage] = useState(30);
@@ -13,13 +13,13 @@ const Users = () => {
 
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = context.users.slice(indexOfFirstUser, indexOfLastUser);
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  return context.users.length === 0 && currentUsers.length === 0 ? (
+  return !users && !currentUsers ? (
     <div>Loading...</div>
   ) : (
     <div style={stylesUsers.container}>

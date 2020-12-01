@@ -42,20 +42,20 @@ const getToken = async (req, res, next) => {
       redisClient.set(key, JSON.stringify(value), 'ex', 3600);
     };
 
-    // await set('shopifyData', shopify);
+    const shopData = await set('shopifyData', shopify);
 
     cacheData = {
       rewardifyTokenData,
-      shopify,
+      shopData,
     };
     cacheTime = Date.now();
     cacheData.cacheTime = cacheTime;
 
     console.log(cacheData);
 
-    await redisClient.set('cacheData', cacheData, 'ex', 3600);
+    const cached = await redisClient.set('cacheData', cacheData, 'ex', 3600);
     // await redisClient.set('rewardifyToken', rewardifyTokenData, 'ex', 3600);
-    console.log('token');
+    return res.json(cached)
   } catch (error) {
     console.log(error);
   }
