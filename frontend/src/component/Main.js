@@ -12,7 +12,7 @@ import LoginForm from './Login';
 const Main = () => {
   const storedJwt = localStorage.getItem('token');
   const [jwt, setJwt] = useState(storedJwt || null);
-  const [fetchError, setFetchError] = useState(null);
+  // const [fetchError, setFetchError] = useState(null);
   const [users, setUsers] = useState([]);
 
   const fetchUsers = async () => {
