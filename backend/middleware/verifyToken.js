@@ -2,13 +2,15 @@ const jwt = require('jsonwebtoken');
 
 // Validate user
 
+const { ACCESS_TOKEN_SECRET } = process.env;
+
 module.exports = function (req, res, next) {
   const token = req.header('auth-token');
 
   if (!token) return res.status(401).send('Access Denied');
 
   try {
-    const verified = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const verified = jwt.verify(token, ACCESS_TOKEN_SECRET);
     req.user = verified;
   } catch (error) {
     res.status(400).send('Invalid Token');

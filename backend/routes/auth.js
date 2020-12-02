@@ -57,16 +57,29 @@ router.post('/login', async (req, res) => {
   });
 
   if (!user)
-    return res.status(400).send({
-      message: 'Email or Password is wrong',
+    return res.status(400).json({
+      error: {
+        msg: 'Email or Password is incorrect',
+      },
     });
   // Check password is valid
 
   const validPassword = await bcrypt.compare(req.body.password, user.password);
 
-  if (!validPassword) return res.status(400).send('Wrong password');
+  if (!validPassword)
+    return res.status(400).json({
+      error: {
+        msg: 'Email or Password is incorrect',
+      },
+    });
   const token = jwt.sign({ _id: user._id }, process.env.ACCESS_TOKEN_SECRET);
-  res.header('auth-token', token).send(token);
+  res.status(200).json({
+    msg: {
+      success: true,
+      status: 'You are successfully logged in!',
+      token,
+    },
+  });
 });
 
 module.exports = router;
