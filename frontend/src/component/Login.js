@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const LoginForm = ({ Login }) => {
   const [userDetails, setUserDetails] = useState({
-    email: '',
-    password: '',
-  });
+    loading: '',
+    isLoggedIn: ''
+  })
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    Login(userDetails);
-  };
+    e.preventDefault()
+    Login(userDetails)
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -39,7 +39,7 @@ const LoginForm = ({ Login }) => {
         submit
       </button>
     </form>
-  );
-};
+  )
+}
 
-export default LoginForm;
+export default LoginForm

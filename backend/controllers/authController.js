@@ -81,9 +81,20 @@ exports.loginAuth = async (req, res, next) => {
     req.session.isLoggedIn = true
     req.session.role = user.role
     req.session.name = user.name
-    res.status(200).send('Logged in')
+    return res.status(200).json({
+      status: {
+        loading: false,
+        isLoggedIn: true,
+        userId: user._id,
+        name: user.name
+      }
+    })
     next()
   } catch (error) {
     console.log(error)
   }
+}
+
+exports.logout = (req, res, next) => {
+  return req.session.destroy()
 }
