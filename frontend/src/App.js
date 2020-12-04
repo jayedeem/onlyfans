@@ -1,13 +1,12 @@
-import Main from './component/Main';
-import React from 'react';
+import { Main } from './components/'
 
-import './App.css';
+import './App.css'
 
 const App = () => {
   return (
     <div>
       <Main />
     </div>
-  );
-};
-export default App;
+  )
+}
+export default App

@@ -40,24 +40,30 @@ mongoose.connect(
 const app = express()
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 
 // app.use(cookieParser());
-
+// app.set('trust proxy', 1)
 app.use(
   session({
     store: new RedisStore({ client: redisClient }),
-    name: 'sess',
     secret: SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: NODE_ENV === 'production',
-      maxAge: 1000 * 60 * 60 * 24
-    }
+
+    saveUninitialized: false
   })
 )
 
+// app.use(function (req, res, next) {
+//   res.header('Access-Control-Allow-Origin', '*')
+//   res.header(
+//     'Access-Control-Allow-Headers',
+//     'Origin, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Response-Time, X-PINGOTHER, X-CSRF-Token, Authorization'
+//   )
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT ,DELETE')
+//   res.header('Access-Control-Allow-Credentials', true)
+//   next()
+// })
 app.use('/auth', authRoute)
 
 // Verify then check cache time
