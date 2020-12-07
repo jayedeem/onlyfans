@@ -20,19 +20,12 @@ export const LoginPage = () => {
   const classes = useStyles()
 
   const loginSubmit = ({ email, password }) => {
+    console.log(email, password)
     axios
-      .post(
-        'http://localhost:1337/auth/login',
-        {
-          data: {
-            email,
-            password
-          }
-        },
-        {
-          withCredentials: true
-        }
-      )
+      .post('http://localhost:1337/auth/login', {
+        email: email,
+        password: password
+      })
 
       .then(({ data }) => console.log(data))
       .catch((err) => console.log(err))

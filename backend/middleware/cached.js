@@ -1,58 +1,45 @@
-const axios = require('axios');
-const redisClient = require('../db/redis');
+const axios = require('axios')
+const redisClient = require('../db/redis')
 
-let cacheTime;
-let cacheData;
+let cacheTime
 
-module.exports = async function (req, res, next) {
-  const dataToParse = await redisClient.get('cacheData');
-  const api = await JSON.parse(dataToParse);
+let cacheToken
 
+// Cache Token
+module.exports = async (req, res, next) => {
+  const dataToParse = await redisClient.get('cacheToken')
+  const api = await JSON.parse(dataToParse)
   if (api && cacheTime && api.cacheTime > Date.now() - 30 * 10000 * 59) {
-    return next();
+    console.log('using old token')
+    return next()
   }
-
   try {
     const rewardifyToken = await axios.request({
       method: 'POST',
       url: `https://api.rewardify.ca/oauth/v2/token`,
       headers: {
-        'Content-type': 'application/json',
+        'Content-type': 'application/json'
       },
       auth: {
         username: process.env.USERNAME,
-        password: process.env.PASSWORD,
+        password: process.env.PASSWORD
       },
       data: {
-        grant_type: 'client_credentials',
-      },
-    });
+        grant_type: 'client_credentials'
+      }
+    })
+    const { access_token } = rewardifyToken.data
 
-    const shopifyData = await axios.request({
-      url: process.env.SHOPIFY_TOKEN_ACCESS_URL,
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Basic ' + process.env.SHOPIFY_X_TOKEN,
-      },
-    });
-
-    const rewardifyTokenData = rewardifyToken.data.access_token;
-
-    const shopify = shopifyData.data;
-
-    cacheData = {
-      rewardifyTokenData,
-      shopify,
-    };
-    cacheTime = Date.now();
-    cacheData.cacheTime = cacheTime;
-    const someData = JSON.stringify(cacheData);
-
-    await redisClient.set('cacheData', someData, 'ex', 3600);
-
-    return next();
+    cacheToken = {
+      access_token
+    }
+    cacheTime = Date.now()
+    cacheToken.cacheTime = cacheTime
+    console.log(cacheToken)
+    const someData = JSON.stringify(cacheToken)
+    await redisClient.set('cacheToken', someData, 'ex', 3600)
+    return next()
   } catch (error) {
-    console.log(error);
+    console.log(error)
   }
-};
+}

@@ -5,11 +5,12 @@ const redisClient = require('../db/redis')
 
 router.get('/', async (req, res) => {
   // Send data to frontend
-  console.log(req.session)
+
   try {
-    const cacheData = await redisClient.get('cacheData')
-    const { shopify } = await JSON.parse(cacheData)
-    return res.json({ api: shopify })
+    const cacheData = await redisClient.get('users')
+    // res.json(cacheData)
+    const usersApi = JSON.parse(cacheData)
+    return res.json(usersApi)
   } catch (error) {
     return res.status(500).json({
       err: {
