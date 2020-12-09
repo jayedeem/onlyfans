@@ -27,7 +27,7 @@ module.exports = async (req, res, next) => {
       results.push(customers)
       params = customers.nextPageParameters
     } while (params !== undefined)
-    const userApi = results.flat(1).filter((user) => user.tags === 'employee')
+    const userApi = results.flat(1)
     cacheData = {
       userApi
     }

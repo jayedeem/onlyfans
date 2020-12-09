@@ -8,9 +8,9 @@ router.get('/', async (req, res) => {
 
   try {
     const cacheData = await redisClient.get('users')
-    // res.json(cacheData)
+
     const usersApi = JSON.parse(cacheData)
-    return res.json(usersApi)
+    return res.send(usersApi)
   } catch (error) {
     return res.status(500).json({
       err: {
