@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
       password: process.env.SHOPIFY_PASSWORD,
       autoLimit: true
     })
-    let params = { limit: 250 }
+    let params = { limit: 100 }
     let results = []
     let cacheTime
     let cacheData
@@ -25,6 +25,7 @@ module.exports = async (req, res, next) => {
     do {
       const customers = await shopify.customer.list(params)
       results.push(customers)
+      console.log(customers.length)
       params = customers.nextPageParameters
     } while (params !== undefined)
     const userApi = results.flat(1)

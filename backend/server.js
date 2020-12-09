@@ -68,7 +68,7 @@ app.use(function (req, res, next) {
 app.use('/auth', authRoute)
 
 // Verify then check cache time
-// app.use(inSession)
+app.use(inSession)
 
 app.use(cached)
 app.use(cachedUsers)

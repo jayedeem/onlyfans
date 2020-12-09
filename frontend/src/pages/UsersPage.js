@@ -19,11 +19,11 @@ const useStyles = makeStyles({
     marginBottom: '10px'
   }
 })
-
+// Controller page
 export const UsersPage = (props) => {
   const [userData, setUserData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [open, setOpen] = React.useState(false)
+
   const classes = useStyles()
 
   useEffect(() => {
@@ -36,14 +36,10 @@ export const UsersPage = (props) => {
 
   const retrieveUsers = async () => {
     const { data } = await axios.get('/api/dashboard')
-    const filter = data.userApi
-      .filter(
-        (user) =>
-          (user.state === 'enabled' && user.tags === 'employee') ||
-          user.tags === 'testAccount'
-      )
+    const filtered = data.userApi
+      .filter((user) => user.state !== 'disabled')
       .sort((a, b) => (a.first_name < b.first_name ? -1 : 1))
-    setUserData(filter)
+    setUserData(filtered)
   }
 
   return (
@@ -55,12 +51,7 @@ export const UsersPage = (props) => {
         <>
           <p>number of users: {userData.length}</p>
           <SearchBar handleChange={handleChange} />
-          <UserTable
-            usersData={userData}
-            searchQuery={searchQuery}
-            open={open}
-            setOpen={setOpen}
-          />
+          <UserTable usersData={userData} searchQuery={searchQuery} />
         </>
       )}
     </Container>
