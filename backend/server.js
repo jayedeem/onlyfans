@@ -9,16 +9,18 @@ const RedisStore = require('connect-redis')(session)
 const dotenv = require('dotenv')
 const cors = require('cors')
 const verify = require('./middleware/verifyToken')
-const cached = require('./middleware/cached')
 const cookieParser = require('cookie-parser')
+const cached = require('./middleware/cached')
+const cachedUsers = require('./middleware/cachedUsers')
 const inSession = require('./middleware/inSession')
 // Routes
 const dashboardRoute = require('./routes/dashboard')
 const rewardifyRoute = require('./routes/rewardifyRoutes')
 const authRoute = require('./routes/auth')
+const shopRoute = require('./routes/shopRoutes')
 
 dotenv.config()
-morgan('tiny')
+morgan('dev')
 
 const { PORT, SESSION_SECRET, NODE_ENV } = process.env
 const redisClient = redis.createClient()
@@ -41,19 +43,26 @@ const app = express()
 
 app.use(express.json())
 app.use(cors())
-
-// app.use(cookieParser());
-
+// app.use(function (req, res, next) {
+//   res.header('Access-Control-Allow-Origin', '*')
+//   res.header(
+//     'Access-Control-Allow-Headers',
+//     'Origin, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Response-Time, X-PINGOTHER, X-CSRF-Token, Authorization'
+//   )
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT ,DELETE')
+//   res.header('Access-Control-Allow-Credentials', true)
+//   next()
+// })
+app.use(cookieParser())
+// app.set('trust proxy', 1)
 app.use(
   session({
     store: new RedisStore({ client: redisClient }),
-    name: 'sess',
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: NODE_ENV === 'production',
-      maxAge: 1000 * 60 * 60 * 24
+      secure: false
     }
   })
 )
@@ -64,7 +73,11 @@ app.use('/auth', authRoute)
 app.use(inSession)
 
 app.use(cached)
+app.use(cachedUsers)
+
+// app.use('/test/shop/', shopTest)
 app.use('/api/dashboard', dashboardRoute)
 app.use('/api/rewardify', rewardifyRoute)
+app.use('/api/shopify', shopRoute)
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
