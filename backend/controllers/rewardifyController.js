@@ -23,15 +23,15 @@ exports.retrieveUsers = async (req, res, next) => {
 
 exports.retrieveUser = async (req, res, next) => {
   try {
-    const cacheData = await redisClient.get('cacheData')
-    const { rewardifyTokenData } = await JSON.parse(cacheData)
+    const cacheData = await redisClient.get('cacheToken')
+    const { access_token } = await JSON.parse(cacheData)
     const { id } = req.params
     const { data } = await axios.get(
       `${process.env.REWARDIFY_URL}/customer/${id}/account`,
       {
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${rewardifyTokenData}`
+          authorization: `Bearer ${access_token}`
         }
       }
     )
@@ -49,15 +49,15 @@ exports.retrieveUser = async (req, res, next) => {
 exports.addCredit = async (req, res, next) => {
   const { email, amount, memo, expiresAt, userId } = req.body
   try {
-    const cacheData = await redisClient.get('cacheData')
-    const { rewardifyTokenData } = await JSON.parse(cacheData)
+    const cacheData = await redisClient.get('cacheToken')
+    const { access_token } = await JSON.parse(cacheData)
     await axios.request({
       url: `/customer/${userId}/account/credit`,
       method: 'PUT',
       baseURL: 'https://api.rewardify.ca/',
       headers: {
         'Content-Type': 'application/json',
-        authorization: `Bearer ${rewardifyTokenData}`
+        authorization: `Bearer ${access_token}`
       },
       data: {
         userId,

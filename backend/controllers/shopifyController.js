@@ -1,7 +1,5 @@
-const { SHOPIFY_TOKEN_ACCESS_URL } = process.env
 const axios = require('axios')
-const { resolve } = require('url')
-
+const shopify = require('../shopify/shop')
 const sToken = Buffer.from(
   `${process.env.SHOPIFY_KEY}:${process.env.SHOPIFY_PASSWORD}`,
   'utf8'
@@ -116,3 +114,18 @@ exports.createUser = async (req, res, next) => {
  * DELETE /admin/api/2020-10/customers/207119551.json
  */
 exports.deleteUser = (req, res, next) => {}
+exports.reports = async (req, res, next) => {
+  try {
+    const reports = await axios.request({
+      url: `https://ultra-swag.myshopify.com/admin/api/2020-10/reports.json`,
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        authorization: 'Basic ' + sToken
+      }
+    })
+    console.log(reports)
+  } catch (error) {
+    console.log(error)
+  }
+}

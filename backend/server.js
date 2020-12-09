@@ -42,19 +42,9 @@ mongoose.connect(
 const app = express()
 
 app.use(express.json())
-app.use(cors())
-// app.use(function (req, res, next) {
-//   res.header('Access-Control-Allow-Origin', '*')
-//   res.header(
-//     'Access-Control-Allow-Headers',
-//     'Origin, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Response-Time, X-PINGOTHER, X-CSRF-Token, Authorization'
-//   )
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT ,DELETE')
-//   res.header('Access-Control-Allow-Credentials', true)
-//   next()
-// })
+
 app.use(cookieParser())
-// app.set('trust proxy', 1)
+
 app.use(
   session({
     store: new RedisStore({ client: redisClient }),
@@ -66,11 +56,19 @@ app.use(
     }
   })
 )
-
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  )
+  next()
+})
 app.use('/auth', authRoute)
 
 // Verify then check cache time
-app.use(inSession)
+// app.use(inSession)
 
 app.use(cached)
 app.use(cachedUsers)
