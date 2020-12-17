@@ -4,21 +4,22 @@ const session = require('express-session')
 const redis = require('ioredis')
 const morgan = require('morgan')
 const RedisStore = require('connect-redis')(session)
-
+const { authJwt } = require('./middleware')
 // Middleware
 const dotenv = require('dotenv')
 const cors = require('cors')
-const verify = require('./middleware/verifyToken')
-const cookieParser = require('cookie-parser')
-const cached = require('./middleware/cached')
-const cachedUsers = require('./middleware/cachedUsers')
-const inSession = require('./middleware/inSession')
-// Routes
-const dashboardRoute = require('./routes/dashboard')
-const rewardifyRoute = require('./routes/rewardifyRoutes')
-const authRoute = require('./routes/auth')
-const shopRoute = require('./routes/shopRoutes')
-
+// const verify = require('./middleware/verifyToken')
+// const cookieParser = require('cookie-parser')
+const { cachedToken } = require('./middleware/')
+// // const cachedUsers = require('./middleware/cachedUsers')
+// const inSession = require('./middleware/inSession')
+// // Routes
+// const dashboardRoute = require('./routes/dashboard')
+// const rewardifyRoute = require('./routes/rewardifyRoutes')
+// const authRoute = require('./routes/auth')
+// const test = require('./routes/test')
+// const shopRoute = require('./routes/shopRoutes')
+const db = require('./models/')
 dotenv.config()
 morgan('dev')
 
@@ -26,56 +27,66 @@ const { PORT, SESSION_SECRET, NODE_ENV } = process.env
 const redisClient = redis.createClient()
 
 const port = PORT || 1337
+const Role = db.role
 
-mongoose.connect(
+db.mongoose.connect(
   process.env.MONGO_DB,
   { useNewUrlParser: true, useUnifiedTopology: true },
   () => {
     try {
       console.log('connected to db')
+      initial()
     } catch (error) {
       console.log(error)
     }
   }
 )
 
-const app = express()
+function initial() {
+  Role.estimatedDocumentCount((err, count) => {
+    if (!err && count === 0) {
+      new Role({
+        name: 'user'
+      }).save((err) => {
+        if (err) {
+          console.log('error', err)
+        }
 
-app.use(express.json())
+        console.log("added 'user' to roles collection")
+      })
 
-app.use(cookieParser())
+      new Role({
+        name: 'admin'
+      }).save((err) => {
+        if (err) {
+          console.log('error', err)
+        }
 
-app.use(
-  session({
-    store: new RedisStore({ client: redisClient }),
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false
+        console.log("added 'admin' to roles collection")
+      })
+
+      new Role({
+        name: 'overlord'
+      }).save((err) => {
+        if (err) {
+          console.log('error', err)
+        }
+
+        console.log("added 'overlord' to roles collection")
+      })
     }
   })
-)
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
-app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  )
-  next()
-})
-app.use('/auth', authRoute)
+}
+const app = express()
+// app.use(cors)
+app.use(express.json())
 
-// Verify then check cache time
-app.use(inSession)
-
-app.use(cached)
-app.use(cachedUsers)
-
-// app.use('/test/shop/', shopTest)
-app.use('/api/dashboard', dashboardRoute)
-app.use('/api/rewardify', rewardifyRoute)
-app.use('/api/shopify', shopRoute)
+// app.get('/test/api', test)
+require('./routes/auth')(app)
+app.use(cachedToken)
+require('./routes/user')(app)
+require('./routes/shopify')(app)
+require('./routes/dashboard')(app)
+require('./routes/rewardify')(app)
 
 app.listen(port, () => console.log(`Listening on port ${port}`))

@@ -1,5 +1,5 @@
 const axios = require('axios')
-const shopify = require('../shopify/shop')
+const redisClient = require('../db/redis')
 const sToken = Buffer.from(
   `${process.env.SHOPIFY_KEY}:${process.env.SHOPIFY_PASSWORD}`,
   'utf8'
@@ -41,6 +41,16 @@ POST /admin/api/2020-10/customers.json
 }
 
 */
+exports.retrieveUsers = async (req, res, next) => {
+  try {
+    const cacheData = await redisClient.get('users')
+
+    res.json(JSON.parse(cacheData))
+  } catch (error) {
+    console.error(error)
+    return res.status(500).send(err.code)
+  }
+}
 
 exports.createUser = async (req, res, next) => {
   const { email, first_name, last_name } = req.body
@@ -113,7 +123,23 @@ exports.createUser = async (req, res, next) => {
  * There is no disable user in API
  * DELETE /admin/api/2020-10/customers/207119551.json
  */
-exports.deleteUser = (req, res, next) => {}
+exports.disableUser = async (req, res, next) => {
+  const { id } = req.body
+  try {
+    const { data } = await axios.request({
+      url: `https://ultra-swag.myshopify.com/admin/api/2020-10/customers/${id}.json`,
+      method: 'DELETE',
+      headers: {
+        'Content-type': 'application/json',
+        authorization: 'Basic ' + sToken
+      }
+    })
+    console.log(data)
+    res.json(data)
+  } catch (error) {
+    console.log(error)
+  }
+}
 exports.reports = async (req, res, next) => {
   try {
     const reports = await axios.request({

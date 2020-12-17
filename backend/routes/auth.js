@@ -1,15 +1,25 @@
-const express = require('express')
-const router = express.Router()
+const { verifySignUp, authJwt } = require('../middleware')
+const controller = require('../controllers/authController')
 
-const authController = require('../controllers/authController')
+module.exports = function (app) {
+  app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000')
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept'
+    )
+    next()
+  })
 
-router.get('/', (req, res) => {
-  res.status(400).send('/auth')
-})
+  app.post(
+    '/api/auth/signup',
+    // [authJwt.verifyToken, authJwt.isAdmin],
+    [
+      verifySignUp.checkDuplicateUsernameOrEmail,
+      verifySignUp.checkRolesExisted
+    ],
+    controller.signup
+  )
 
-router.post('/register', authController.registerAuth)
-
-router.post('/login', authController.loginAuth)
-router.post('/logout', authController.logout)
-
-module.exports = router
+  app.post('/api/auth/signin', controller.signin)
+}

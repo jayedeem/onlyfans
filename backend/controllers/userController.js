@@ -1,6 +1,22 @@
+exports.allAccess = (req, res) => {
+  res.status(200).send('Public Content.')
+}
+
+exports.userBoard = (req, res) => {
+  res.status(200).send('User Content.')
+}
+
+exports.adminBoard = (req, res) => {
+  res.status(200).send('Admin Content.')
+}
+
+exports.moderatorBoard = (req, res) => {
+  res.status(200).send('Moderator Content.')
+}
+
 const Shopify = require('shopify-api-node')
 
-module.exports = async (req, res, next) => {
+exports.orders = async (req, res) => {
   ;(async () => {
     const shopify = new Shopify({
       shopName: 'ultra-swag.myshopify.com',
@@ -18,6 +34,6 @@ module.exports = async (req, res, next) => {
       params = orders.nextPageParameters
     } while (params !== undefined)
     const userApi = results.flat(1)
-    console.log(userApi)
+    res.send(userApi)
   })().catch(console.error)
 }

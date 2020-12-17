@@ -1,12 +1,9 @@
-import { Main } from './components/'
+
+import Main from './components/Main'
 
 import './App.css'
 
 const App = () => {
-  return (
-    <div>
-      <Main />
-    </div>
-  )
+  return <Main />
 }
 export default App

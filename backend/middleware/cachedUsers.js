@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
       password: process.env.SHOPIFY_PASSWORD,
       autoLimit: true
     })
-    let params = { limit: 100 }
+    let params = { limit: 250 }
     let results = []
     let cacheTime
     let cacheData
@@ -29,6 +29,7 @@ module.exports = async (req, res, next) => {
       params = customers.nextPageParameters
     } while (params !== undefined)
     const userApi = results.flat(1)
+
     cacheData = {
       userApi
     }
@@ -37,7 +38,6 @@ module.exports = async (req, res, next) => {
     const userData = JSON.stringify(cacheData)
 
     await redisClient.set('users', userData, 'ex', 3600)
-
     return next()
-  })().catch(console.error)
+  })().catch((err) => console.log(err))
 }
