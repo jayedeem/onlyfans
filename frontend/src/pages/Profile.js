@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
+import { useParams, useLocation, useHistory } from 'react-router-dom'
 import { useRef } from 'react'
 
 import UserService from '../services/user.service'
 import { Loading } from '../components/Loading'
+
+import MenuItem from '@material-ui/core/MenuItem'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
@@ -13,13 +15,13 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import { TextField } from '@material-ui/core'
-import MenuItem from '@material-ui/core/MenuItem'
+
 import Button from '@material-ui/core/Button'
 import Select from '@material-ui/core/Select'
 import Container from '@material-ui/core/Container'
 import Avatar from '@material-ui/core/Avatar'
 import { deepPurple } from '@material-ui/core/colors'
-
+import AuthService from '../services/auth.service'
 const useStyles = makeStyles((theme) => ({
   table: {
     display: 'flex',
@@ -64,8 +66,11 @@ const useStyles = makeStyles((theme) => ({
 export const ProfilePage = () => {
   const { userId } = useParams()
   const { state } = useLocation()
+  const history = useHistory()
   const [amount, setAmount] = useState('')
-  const [selectValue, setSelectValue] = useState(null)
+  const [selectValue, setSelectValue] = useState({
+    value: ''
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [status, setStatus] = useState('')
@@ -74,16 +79,26 @@ export const ProfilePage = () => {
   const classes = useStyles()
   const cell = useRef()
   const selectRef = useRef()
+  const textRef = useRef()
+
+  console.log(typeof amount)
 
   useEffect(() => {
-    console.log(state)
+    const user = AuthService.getCurrentUser()
+    if (!user) {
+      return history.push('/login')
+    }
+  }, [history])
+
+  useEffect(() => {
     setFetching(true)
+
     retrieveUser(state.user.id)
-    setFetching(false)
-  }, [])
+    return () => setFetching(false)
+  }, [state])
 
   const handleInput = (e) => {
-    if (selectValue === 'opt') {
+    if (selectValue.value === 'opt') {
       setAmount(0)
     } else {
       setAmount(e.target.value)
@@ -98,14 +113,14 @@ export const ProfilePage = () => {
   }
 
   const valueType =
-    (selectValue === 'add' && 'Adding Credit') ||
-    (selectValue === 'remove' && 'Deducting Credit') ||
-    (selectValue === 'zero' && 'Zeroing Out') ||
-    (selectValue === 'opt' && 'Edit')
+    (selectValue.value === 'add' && 'Adding Credit') ||
+    (selectValue.value === 'remove' && 'Deducting Credit') ||
+    (selectValue.value === 'zero' && 'Zeroing Out') ||
+    (selectValue.value === 'opt' && 'Edit')
 
   const handleSelect = (e) => {
     setAmount('')
-    setSelectValue(e.target.value)
+    setSelectValue({ value: e.target.value })
   }
 
   const retrieveUser = async (id) => {
@@ -115,14 +130,19 @@ export const ProfilePage = () => {
     setProfileUser(data)
   }
 
-  const doMath = (amount) => {
-    if (selectValue === 'add') {
-      return `$${parseFloat(amount) + parseFloat(profileUser.amount)} `
+  const doMath = (money) => {
+    if (selectValue.value === 'add') {
+      return `$${parseFloat(money) + parseFloat(profileUser.amount)} `
     }
-    if (selectValue === 'remove') {
-      return `$${parseFloat(profileUser.amount) - parseFloat(amount)} `
+    if (selectValue.value === 'remove') {
+      if (parseFloat(profileUser.amount) === parseFloat(money)) {
+        return `$${
+          parseFloat(profileUser.amount) - parseFloat(profileUser.amount)
+        } `
+      }
+      return `$${parseFloat(profileUser.amount) - parseFloat(money)} `
     }
-    if (selectValue === 'zero') {
+    if (selectValue.value === 'zero') {
       return `$${
         parseFloat(profileUser.amount) - parseFloat(profileUser.amount)
       } `
@@ -164,10 +184,11 @@ export const ProfilePage = () => {
               ${parseFloat(profileUser.amount).toFixed(2)}
             </TableCell>
             <TableCell>
-              {selectValue === 'zero'
+              {selectValue.value === 'zero' || amount === ''
                 ? `$${parseFloat(profileUser.amount).toFixed(2)}`
                 : `$${parseFloat(amount).toFixed(2)}`}
             </TableCell>
+            {/* //TODO! Add, subtract from balance...needs rework */}
             <TableCell innerRef={cell}>{doMath(amount)}</TableCell>
           </TableRow>
         </TableBody>
@@ -176,9 +197,12 @@ export const ProfilePage = () => {
       <form onSubmit={handleSubmit} className={classes.form}>
         <TextField
           style={{ marginRight: '15px' }}
-          placeholder={selectValue === 'opt' ? 'Pick an Option' : 'Amount...'}
-          disabled={selectValue === 'opt'}
+          placeholder={
+            selectValue.value === 'opt' ? 'Pick an Option' : 'Amount...'
+          }
+          disabled={selectValue.value === 'opt'}
           value={amount}
+          innerRef={textRef}
           onChange={handleInput}
         />
 
@@ -187,7 +211,7 @@ export const ProfilePage = () => {
           labelId="select-label"
           id="select-input"
           onChange={handleSelect}
-          value={selectValue}
+          value={selectValue.value}
           innerRef={selectRef}
         >
           <MenuItem value="opt">-</MenuItem>

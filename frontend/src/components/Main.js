@@ -3,13 +3,14 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect
+  Redirect,
+  useLocation
 } from 'react-router-dom'
 import UserMain from '../pages/UserMain'
-import ProtectedRoutes from '../routes'
+
 import { useHistory } from 'react-router-dom'
 import AuthService from '../services/auth.service'
-
+import { ProtectedRoutes } from '../routes/'
 import Login from './newLogin'
 import Register from './Register'
 
@@ -17,47 +18,52 @@ import { ProfilePage } from '../pages'
 
 const App = () => {
   const [currentUser, setCurrentUser] = useState({})
-  const history = useHistory()
+  const [redirectToReferrer, setRedirectToReferrer] = useState(false)
+  const [didMount, setDidMount] = useState(false)
+  const { state } = useLocation()
 
   useEffect(() => {
+    setDidMount(true)
     const user = AuthService.getCurrentUser()
 
     if (user) {
       setCurrentUser(user)
-      console.log(currentUser)
     }
+    return () => setDidMount(false)
   }, [])
+
+  if (!!redirectToReferrer) {
+    console.log(redirectToReferrer)
+    console.log(state)
+    return <Redirect to={state?.from || '/'} />
+  }
+
+  if (!didMount) {
+    return null
+  }
 
   return (
     <>
-      <Router>
-        <Switch>
-          <Route exact path="/login" component={Login} />
-          {!currentUser && <Redirect to="/login" />}
-          {currentUser.isAuth && (
-            <>
-              <ProtectedRoutes
-                exact
-                path="/users"
-                currentUser={currentUser}
-                component={UserMain}
-              />
-              <ProtectedRoutes
-                exact
-                path="/users/:id"
-                currentUser={currentUser}
-                component={ProfilePage}
-              />
-              <ProtectedRoutes
-                exact
-                path="/register"
-                currentUser={currentUser}
-                component={Register}
-              />
-            </>
-          )}
-        </Switch>
-      </Router>
+      <Route
+        exact
+        path="/login"
+        component={() => (
+          <Login setRedirectToReferrer={setRedirectToReferrer} />
+        )}
+      />
+      <ProtectedRoutes
+        exact
+        path="/"
+        currentUser={currentUser}
+        component={UserMain}
+      />
+
+      <ProtectedRoutes
+        exact
+        path="/users/:id"
+        currentUser={currentUser}
+        component={ProfilePage}
+      />
     </>
   )
 }

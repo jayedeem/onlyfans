@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { SearchBar } from '../components/SearchBar'
 import { makeStyles } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
@@ -10,8 +11,9 @@ import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import { Link } from 'react-router-dom'
 import UserServices from '../services/user.service'
+import AuthService from '../services/auth.service'
 import { Loading } from '../components/Loading'
-
+import { Row } from '../utils/select'
 const useStyles = makeStyles({
   container: {
     display: 'flex',
@@ -45,21 +47,36 @@ const useStyles = makeStyles({
 })
 
 const UserMain = () => {
+  const history = useHistory()
   const [isLoading, setIsLoading] = useState(false)
   const [userData, setUserData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [amount, setAmount] = useState('')
   const [count, setCount] = useState(0)
   const [selectValue, setSelectValue] = useState('')
+  const [didMount, setDidMount] = useState(false)
 
   const classes = useStyles()
 
   useEffect(() => {
+    const user = AuthService.getCurrentUser()
+    if (!user) {
+      return history.push('/login')
+    }
+  }, [history])
+
+  useEffect(() => {
+    setDidMount(true)
     setIsLoading(true)
     setTimeout(() => {
       retrieveUsers()
     }, 1500)
+    return () => setDidMount(false)
   }, [])
+
+  if (!didMount) {
+    return null
+  }
 
   const handleQuery = (e) => {
     setIsLoading(true)
@@ -69,7 +86,7 @@ const UserMain = () => {
     }, 500)
   }
 
-  const retrieveUsers = async () => {
+  async function retrieveUsers() {
     const { data } = await UserServices.getUsers()
 
     const filtered = data.userApi
@@ -130,19 +147,7 @@ const UserMain = () => {
                   }
                 })
                 .map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell
-                      component={Link}
-                      to={{ pathname: `/users/${user.id}`, state: { user } }}
-                      align="left"
-                    >
-                      {user.id}
-                    </TableCell>
-
-                    <TableCell align="left">{user.first_name}</TableCell>
-                    <TableCell align="left">{user.last_name}</TableCell>
-                    <TableCell align="left">{user.email}</TableCell>
-                  </TableRow>
+                  <Row key={user.id} user={user} />
                 ))}
             </TableBody>
           </Table>

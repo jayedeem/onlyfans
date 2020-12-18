@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Form from 'react-validation/build/form'
 import Input from 'react-validation/build/input'
 import CheckButton from 'react-validation/build/button'
@@ -11,6 +11,7 @@ import Button from '@material-ui/core/Button'
 import Alert from '@material-ui/lab/Alert'
 import Grid from '@material-ui/core/Grid'
 import { useHistory, withRouter } from 'react-router-dom'
+import { Loading } from './Loading'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -34,7 +35,7 @@ const required = (value) => {
   }
 }
 
-const Login = (props) => {
+const Login = ({ setRedirectToReferrer }) => {
   const form = useRef()
   const checkBtn = useRef()
   const history = useHistory()
@@ -42,6 +43,13 @@ const Login = (props) => {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    const user = AuthService.getCurrentUser()
+    if (user) {
+      return history.push('/users')
+    }
+  }, [history])
 
   const classes = useStyles()
 
@@ -68,7 +76,8 @@ const Login = (props) => {
     if (checkBtn.current.context._errors.length === 0) {
       AuthService.login(username, password).then(
         () => {
-          history.push('/users')
+          setRedirectToReferrer(true)
+          // history.push('/')
         },
         (error) => {
           const resMessage =
@@ -86,6 +95,9 @@ const Login = (props) => {
     } else {
       setLoading(false)
     }
+  }
+  if (loading) {
+    return <Loading />
   }
 
   return (
@@ -139,4 +151,4 @@ const Login = (props) => {
   )
 }
 
-export default withRouter(Login)
+export default Login
