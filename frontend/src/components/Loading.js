@@ -9,15 +9,16 @@ const useStyles = makeStyles({
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '70vh'
+    height: '30vh'
   }
 })
 
-export const Loading = () => {
+export const Loading = ({ status }) => {
   const classes = useStyles()
   return (
     <Container className={classes.container}>
-      <CircularProgress size="6rem" />
+      <CircularProgress size="4rem" />
+      {status && <p style={{ marginTop: '20px' }}>{status.toUpperCase()}</p>}
     </Container>
   )
 }

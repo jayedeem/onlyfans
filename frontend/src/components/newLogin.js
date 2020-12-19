@@ -1,18 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react'
-import Form from 'react-validation/build/form'
-import Input from 'react-validation/build/input'
-import CheckButton from 'react-validation/build/button'
+import Button from '@material-ui/core/Button'
 import Container from '@material-ui/core/Container'
-import AuthService from '../services/auth.service'
-import Paper from '@material-ui/core/Paper'
+import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
 import Alert from '@material-ui/lab/Alert'
-import Grid from '@material-ui/core/Grid'
-import { useHistory, withRouter } from 'react-router-dom'
-import { Loading } from './Loading'
-
+import React, { useEffect, useRef, useState } from 'react'
+import { useHistory } from 'react-router-dom'
+import CheckButton from 'react-validation/build/button'
+import Form from 'react-validation/build/form'
+import AuthService from '../services/auth.service'
+import { Loading } from './'
 const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
@@ -35,7 +32,7 @@ const required = (value) => {
   }
 }
 
-const Login = ({ setRedirectToReferrer }) => {
+export const Login = ({ setRedirectToReferrer }) => {
   const form = useRef()
   const checkBtn = useRef()
   const history = useHistory()
@@ -150,5 +147,3 @@ const Login = ({ setRedirectToReferrer }) => {
     </Container>
   )
 }
-
-export default Login

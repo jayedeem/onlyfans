@@ -1,19 +1,18 @@
-import { useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import { SearchBar } from '../components/SearchBar'
 import { makeStyles } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
+import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import Paper from '@material-ui/core/Paper'
-import { Link } from 'react-router-dom'
-import UserServices from '../services/user.service'
-import AuthService from '../services/auth.service'
+import { useCallback, useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { Loading } from '../components/Loading'
+import { SearchBar } from '../components/SearchBar'
+import AuthService from '../services/auth.service'
+import UserServices from '../services/user.service'
 import { Row } from '../utils/select'
+
 const useStyles = makeStyles({
   container: {
     display: 'flex',
@@ -43,20 +42,55 @@ const useStyles = makeStyles({
     alignContent: 'center',
     alignItems: 'center',
     marginTop: '100px'
+  },
+  loading: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+    width: '100%',
+    marginTop: '20px'
   }
 })
 
-const UserMain = () => {
+export const UsersPage = () => {
   const history = useHistory()
   const [isLoading, setIsLoading] = useState(false)
   const [userData, setUserData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [amount, setAmount] = useState('')
-  const [count, setCount] = useState(0)
-  const [selectValue, setSelectValue] = useState('')
+  const [count, setCount] = useState(userData.length)
   const [didMount, setDidMount] = useState(false)
+  const [status, setStatus] = useState('')
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(25)
+  const [pageOptions, setPageOptions] = useState([5, 10, 25])
 
   const classes = useStyles()
+
+  const handleChangePage = (e, newPage) => {
+    // console.log('newpage', newPage)
+    setPage(newPage)
+  }
+
+  const handleChangePerRow = (e) => {
+    setRowsPerPage(parseInt(e.target.value, 10))
+    setPage(0)
+  }
+
+  const retrieveUsers = useCallback(async () => {
+    setIsLoading(true)
+    const { data } = await UserServices.getUsers()
+    const filtered = data.api.userApi
+      .filter(
+        (user) => user.state !== 'disabled' && user.email.match(/^.+@ultra.me$/)
+      )
+      .sort((a, b) => (a.first_name < b.first_name ? -1 : 1))
+    setStatus(`Fetching ${filtered.length} users`)
+    setUserData(filtered)
+    setCount(filtered.length)
+    setIsLoading(false)
+  }, [])
 
   useEffect(() => {
     const user = AuthService.getCurrentUser()
@@ -67,47 +101,38 @@ const UserMain = () => {
 
   useEffect(() => {
     setDidMount(true)
-    setIsLoading(true)
+    retrieveUsers()
     setTimeout(() => {
-      retrieveUsers()
-    }, 1500)
+      setIsLoading(false)
+    }, 2000)
+    setStatus('Retrieving Users')
     return () => setDidMount(false)
-  }, [])
+  }, [retrieveUsers])
 
   if (!didMount) {
     return null
   }
 
   const handleQuery = (e) => {
+    setPage(0)
     setIsLoading(true)
+    setStatus('Querying')
     setSearchQuery(e.target.value)
     setTimeout(() => {
       setIsLoading(false)
-    }, 500)
+    }, 300)
   }
-
-  async function retrieveUsers() {
-    const { data } = await UserServices.getUsers()
-
-    const filtered = data.userApi
-      .filter(
-        (user) => user.state !== 'disabled' && user.email.match(/^.+@ultra.me$/)
-      )
-      .sort((a, b) => (a.first_name < b.first_name ? -1 : 1))
-
-    setUserData(filtered)
-    setCount(filtered.length)
-    setIsLoading(false)
-  }
+  let array = []
 
   return (
     <>
       <div className={classes.text}>
         <SearchBar handleQuery={handleQuery} />
-        <p>Active Users: {count}</p>
       </div>
       {isLoading ? (
-        <Loading />
+        <div className={classes.loading}>
+          <Loading status={status} />
+        </div>
       ) : (
         <div className={classes.container}>
           <Table
@@ -141,20 +166,29 @@ const UserMain = () => {
                       .toLowerCase()
                       .includes(searchQuery.toLowerCase())
                   ) {
+                    array.push(value)
+
                     return value
                   } else {
                     return null
                   }
                 })
-                .map((user) => (
-                  <Row key={user.id} user={user} />
-                ))}
+
+                .map((user) => <Row key={user.id} user={user} />)
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
             </TableBody>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={count}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangePerRow}
+            />
           </Table>
         </div>
       )}
     </>
   )
 }
-
-export default UserMain

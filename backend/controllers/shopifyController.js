@@ -45,7 +45,12 @@ exports.retrieveUsers = async (req, res, next) => {
   try {
     const cacheData = await redisClient.get('users')
 
-    res.json(JSON.parse(cacheData))
+    res.json({
+      api: JSON.parse(cacheData),
+      status: {
+        msg: 'Fetching users'
+      }
+    })
   } catch (error) {
     console.error(error)
     return res.status(500).send(err.code)

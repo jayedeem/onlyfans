@@ -1,27 +1,23 @@
-import { useEffect, useState } from 'react'
-import { useParams, useLocation, useHistory } from 'react-router-dom'
-import { useRef } from 'react'
-
-import UserService from '../services/user.service'
-import { Loading } from '../components/Loading'
-
+import { TextField } from '@material-ui/core'
+import Avatar from '@material-ui/core/Avatar'
+import Button from '@material-ui/core/Button'
+import { deepPurple } from '@material-ui/core/colors'
+import Container from '@material-ui/core/Container'
 import MenuItem from '@material-ui/core/MenuItem'
-
+import Paper from '@material-ui/core/Paper'
+import Select from '@material-ui/core/Select'
 import { makeStyles } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
-import Paper from '@material-ui/core/Paper'
-import { TextField } from '@material-ui/core'
-
-import Button from '@material-ui/core/Button'
-import Select from '@material-ui/core/Select'
-import Container from '@material-ui/core/Container'
-import Avatar from '@material-ui/core/Avatar'
-import { deepPurple } from '@material-ui/core/colors'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useHistory, useLocation, useParams } from 'react-router-dom'
+import { Loading } from '../components/Loading'
 import AuthService from '../services/auth.service'
+import UserService from '../services/user.service'
+
 const useStyles = makeStyles((theme) => ({
   table: {
     display: 'flex',
@@ -60,6 +56,15 @@ const useStyles = makeStyles((theme) => ({
 
     alignContent: 'center',
     alignItems: 'center'
+  },
+  loading: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+    width: '100%',
+    marginTop: '20px'
   }
 }))
 
@@ -73,17 +78,22 @@ export const ProfilePage = () => {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [open, setOpen] = useState(false)
-  const [status, setStatus] = useState('')
+
   const [profileUser, setProfileUser] = useState({})
   const [fetching, setFetching] = useState(false)
+  const [status, setStatus] = useState('')
   const classes = useStyles()
   const cell = useRef()
   const selectRef = useRef()
   const textRef = useRef()
 
-  console.log(typeof amount)
-
+  const retrieveUser = useCallback(async (id) => {
+    const { data } = await UserService.getUser(id)
+    setStatus(data.status.msg)
+    setProfileUser(data.api)
+  }, [])
   useEffect(() => {
+    setIsLoading(true)
     const user = AuthService.getCurrentUser()
     if (!user) {
       return history.push('/login')
@@ -94,8 +104,12 @@ export const ProfilePage = () => {
     setFetching(true)
 
     retrieveUser(state.user.id)
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 1000)
+    setStatus('')
     return () => setFetching(false)
-  }, [state])
+  }, [state, retrieveUser])
 
   const handleInput = (e) => {
     if (selectValue.value === 'opt') {
@@ -107,7 +121,7 @@ export const ProfilePage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    setAmount()
+    // setAmount()
     console.log(selectValue)
     console.log(amount)
   }
@@ -121,13 +135,6 @@ export const ProfilePage = () => {
   const handleSelect = (e) => {
     setAmount('')
     setSelectValue({ value: e.target.value })
-  }
-
-  const retrieveUser = async (id) => {
-    setIsLoading(true)
-    const { data } = await UserService.getUser(id)
-    setIsLoading(false)
-    setProfileUser(data)
   }
 
   const doMath = (money) => {
@@ -148,11 +155,9 @@ export const ProfilePage = () => {
       } `
     }
   }
-
-  if (!Object.keys(profileUser).length) {
-    return <Loading />
+  if (!Object.keys(profileUser).length || isLoading) {
+    return <Loading status={status} />
   }
-
   return (
     <Container component={Paper} className={classes.table}>
       <div className={classes.avatar}>

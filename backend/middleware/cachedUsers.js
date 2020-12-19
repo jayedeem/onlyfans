@@ -38,6 +38,7 @@ module.exports = async (req, res, next) => {
     const userData = JSON.stringify(cacheData)
 
     await redisClient.set('users', userData, 'ex', 3600)
+
     return next()
   })().catch((err) => console.log(err))
 }

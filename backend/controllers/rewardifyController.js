@@ -4,7 +4,6 @@ const redisClient = require('../db/redis')
 // const cacheData = redisClient.get('cacheData')
 // const { shopify } = JSON.parse(cacheData)
 
-
 exports.retrieveUser = async (req, res, next) => {
   try {
     const cacheData = await redisClient.get('cacheToken')
@@ -24,9 +23,16 @@ exports.retrieveUser = async (req, res, next) => {
       return res.status(404).send('No user found')
     }
     // const user = Object.entries(data); Need to parse Object to array? Front or backend?
-    return res.status(200).json(data)
+    console.log(data)
+    return res.status(200).json({
+      api: data,
+      status: {
+        msg: `Please wait...Retrieving ${data.customer.firstName} ${data.customer.lastName}`
+      }
+    })
   } catch (error) {
-    console.log(error)
+    console.error(error)
+    return res.status(500).send('No user found')
   }
 }
 // Give customer credit

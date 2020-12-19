@@ -12,7 +12,7 @@ module.exports = function (app) {
 
   app.get(
     '/api/shopify/users',
-    // authJwt.verifyToken,
+    authJwt.verifyToken,
     cachedUsers,
     controller.retrieveUsers
   )

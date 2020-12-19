@@ -1,20 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-  useLocation
-} from 'react-router-dom'
-import UserMain from '../pages/UserMain'
-
-import { useHistory } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Redirect, Route, useLocation } from 'react-router-dom'
+import { ProfilePage, UsersPage } from '../pages'
+import { ProtectedRoutes } from '../routes'
 import AuthService from '../services/auth.service'
-import { ProtectedRoutes } from '../routes/'
-import Login from './newLogin'
-import Register from './Register'
-
-import { ProfilePage } from '../pages'
+import { Login } from './'
 
 const App = () => {
   const [currentUser, setCurrentUser] = useState({})
@@ -55,7 +44,7 @@ const App = () => {
         exact
         path="/"
         currentUser={currentUser}
-        component={UserMain}
+        component={UsersPage}
       />
 
       <ProtectedRoutes
