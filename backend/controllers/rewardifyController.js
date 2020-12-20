@@ -19,11 +19,12 @@ exports.retrieveUser = async (req, res, next) => {
       }
     )
     // Data from rewardify comes as an Object
+    console.log(data)
     if (!data) {
       return res.status(404).send('No user found')
     }
-    // const user = Object.entries(data); Need to parse Object to array? Front or backend?
-    console.log(data)
+    const user = Object.entries(data)
+    console.log('user', user)
     return res.status(200).json({
       api: data,
       status: {

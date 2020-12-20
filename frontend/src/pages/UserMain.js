@@ -5,12 +5,13 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import { useCallback, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Loading } from '../components/Loading'
 import { SearchBar } from '../components/SearchBar'
+import { UsersDataContext } from '../context'
 import AuthService from '../services/auth.service'
-import UserServices from '../services/user.service'
+// import UserServices from '../services/user.service'
 import { Row } from '../utils/select'
 
 const useStyles = makeStyles({
@@ -55,16 +56,18 @@ const useStyles = makeStyles({
 })
 
 export const UsersPage = () => {
+  const {
+    usersData,
+    status,
+    isLoading,
+    count,
+    setIsLoading,
+    setStatus
+  } = useContext(UsersDataContext)
   const history = useHistory()
-  const [isLoading, setIsLoading] = useState(false)
-  const [userData, setUserData] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [count, setCount] = useState(userData.length)
-  const [didMount, setDidMount] = useState(false)
-  const [status, setStatus] = useState('')
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(25)
-  const [pageOptions, setPageOptions] = useState([5, 10, 25])
 
   const classes = useStyles()
 
@@ -78,40 +81,12 @@ export const UsersPage = () => {
     setPage(0)
   }
 
-  const retrieveUsers = useCallback(async () => {
-    setIsLoading(true)
-    const { data } = await UserServices.getUsers()
-    const filtered = data.api.userApi
-      .filter(
-        (user) => user.state !== 'disabled' && user.email.match(/^.+@ultra.me$/)
-      )
-      .sort((a, b) => (a.first_name < b.first_name ? -1 : 1))
-    setStatus(`Fetching ${filtered.length} users`)
-    setUserData(filtered)
-    setCount(filtered.length)
-    setIsLoading(false)
-  }, [])
-
   useEffect(() => {
     const user = AuthService.getCurrentUser()
     if (!user) {
       return history.push('/login')
     }
   }, [history])
-
-  useEffect(() => {
-    setDidMount(true)
-    retrieveUsers()
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
-    setStatus('Retrieving Users')
-    return () => setDidMount(false)
-  }, [retrieveUsers])
-
-  if (!didMount) {
-    return null
-  }
 
   const handleQuery = (e) => {
     setPage(0)
@@ -151,7 +126,7 @@ export const UsersPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {userData
+              {usersData
                 .filter((value) => {
                   if (searchQuery === '') {
                     return value
