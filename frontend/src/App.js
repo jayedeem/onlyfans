@@ -1,18 +1,16 @@
 import { BrowserRouter, Switch } from 'react-router-dom'
 import './App.css'
 import Main from './components/Main'
-import { UsersDataProvider } from './context'
+import { ContextWrapper } from './context/'
 
 const App = () => {
   return (
     <BrowserRouter>
-      <UsersDataProvider>
-        {/* <ProfilePageProvider> */}
-        <Switch>
+      <Switch>
+        <ContextWrapper>
           <Main />
-        </Switch>
-        {/* </ProfilePageProvider> */}
-      </UsersDataProvider>
+        </ContextWrapper>
+      </Switch>
     </BrowserRouter>
   )
 }

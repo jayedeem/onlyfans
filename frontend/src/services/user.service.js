@@ -11,6 +11,7 @@ class UserService {
   }
 
   getUser(id) {
+    console.log('getuser', id)
     return axios.get(API_URL + `rewardify/user/${id}`, {
       headers: authHeader()
     })

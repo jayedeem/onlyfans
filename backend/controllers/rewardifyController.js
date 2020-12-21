@@ -9,6 +9,7 @@ exports.retrieveUser = async (req, res, next) => {
     const cacheData = await redisClient.get('cacheToken')
     const { access_token } = await JSON.parse(cacheData)
     const { id } = req.params
+    console.log(id)
     const { data } = await axios.get(
       `${process.env.REWARDIFY_URL}/customer/${id}/account`,
       {
@@ -23,8 +24,8 @@ exports.retrieveUser = async (req, res, next) => {
     if (!data) {
       return res.status(404).send('No user found')
     }
-    const user = Object.entries(data)
-    console.log('user', user)
+    // const user = Object.entries(data)
+    // console.log('user', user)
     return res.status(200).json({
       api: data,
       status: {

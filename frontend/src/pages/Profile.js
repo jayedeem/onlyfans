@@ -1,12 +1,27 @@
+import {
+  Container,
+  Paper,
+  Table,
+  TableCell,
+  Avatar,
+  Button,
+  MenuItem,
+  Select,
+  TextField,
+  TableHead,
+  TableRow,
+  TableBody
+} from '@material-ui/core'
 import { deepPurple } from '@material-ui/core/colors'
 import { makeStyles } from '@material-ui/core/styles'
 import { useEffect, useRef, useState } from 'react'
-import { useQuery } from 'react-query'
 import { useHistory, useLocation, useParams } from 'react-router-dom'
-import { Loading } from '../components/Loading'
+
 // import { ProfilePageContext } from '../context'
+import { Loading } from '../components'
+import { useProfileDispatch, useProfileState } from '../context'
 import AuthService from '../services/auth.service'
-import UserService from '../services/user.service'
+import UserServices from '../services/user.service'
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -59,27 +74,16 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const ProfilePage = () => {
-  // const {
-  //   state,
-  //   status,
-  //   setStatus,
-  //   profileUser,
-  //   setProfileUser,
-  //   fetching,
-  //   setFetching,
-  //   isLoading,
-  //   setIsLoading
-  // } = useContext(ProfilePageContext)
-
   const { state } = useLocation()
-
+  const dispatch = useProfileDispatch()
+  const { profile, info, _, value: selectedValue } = useProfileState()
   const { userId } = useParams()
   const history = useHistory()
   const [amount, setAmount] = useState('')
   const [selectValue, setSelectValue] = useState({
     value: ''
   })
-  // const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const [profileUser, setProfileUser] = useState({})
   const [fetching, setFetching] = useState(false)
@@ -88,96 +92,93 @@ export const ProfilePage = () => {
   const cell = useRef()
   const selectRef = useRef()
   const textRef = useRef()
-  const { data, isLoading, error } = useQuery('user', () =>
-    UserService.getUser(state.user.id)
-  )
 
-  // async function retrieveUser(state) {
-  //   const { data } = await UserService.getUser(state.user.id)
-  //   // setStatus(data.status.msg)
-  //   // setProfileUser(data.api)
-  //   return data
-  // }
+  async function retrieveUser(userId) {
+    console.log('retrieverUser function - ', userId)
+    const { data } = await UserServices.getUser(userId)
+    console.log('DATA FROM ENDPOINT - ', data)
+    setProfileUser(data)
+    // dispatch({ type: 'RETRIEVE_INFO', payload: data.api })
+
+    setIsLoading(false)
+    return data
+  }
 
   useEffect(() => {
-    // setIsLoading(true)
     const user = AuthService.getCurrentUser()
     if (!user) {
       return history.push('/login')
     }
   }, [history])
 
+  // useEffect(() => {
+  //   console.log('DISPATCHING FROM STATE', state.user.id)
+  //   dispatch({ type: 'USER', payload: state.user.id })
+  // }, [])
+
   useEffect(() => {
-    setFetching(true)
+    // console.log('FROM CONTEXT - PROFILE', profile)
+    retrieveUser(state.user.id)
+  }, [])
 
-    // retrieveUser(state.user.id)
-    // setTimeout(() => {
-    //   setIsLoading(false)
-    // }, 1000)
-    setStatus('')
-    return () => setFetching(false)
-  }, [state /*retrieveUser*/])
-
-  // if (!Object.keys(profileUser).length || isLoading) {
-  //   return <Loading status={status} />
-  // }
-  if (isLoading) {
+  if (!Object.keys(profileUser).length) {
     return <Loading status={status} />
   }
+  // if (isLoading) {
+  //   return <Loading status={status} />
+  // }
 
-  if (error) {
-    return <span>Something happened</span>
-  }
-  console.log(data)
+  // const handleInput = (e) => {
+  //   if (selectValue.value === 'opt') {
+  //     setAmount(0)
+  //   } else {
+  //     setAmount(e.target.value)
+  //   }
+  // }
 
-  const handleInput = (e) => {
-    if (selectValue.value === 'opt') {
-      setAmount(0)
-    } else {
-      setAmount(e.target.value)
-    }
-  }
+  // const handleSubmit = (e) => {
+  //   e.preventDefault()
+  //   // setAmount()
+  //   console.log(selectValue)
+  //   console.log(amount)
+  // }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // setAmount()
-    console.log(selectValue)
-    console.log(amount)
-  }
+  // const valueType =
+  //   (selectValue.value === 'add' && 'Adding Credit') ||
+  //   (selectValue.value === 'remove' && 'Deducting Credit') ||
+  //   (selectValue.value === 'zero' && 'Zeroing Out') ||
+  //   (selectValue.value === 'opt' && 'Edit')
 
-  const valueType =
-    (selectValue.value === 'add' && 'Adding Credit') ||
-    (selectValue.value === 'remove' && 'Deducting Credit') ||
-    (selectValue.value === 'zero' && 'Zeroing Out') ||
-    (selectValue.value === 'opt' && 'Edit')
+  // const handleSelect = (e) => {
+  //   setAmount('')
+  //   console.log('onchange', e.target.value)
+  //   // dispatch({ type: 'SELECT_VALUE', payload: e.target.value })
+  //   setSelectValue({ value: e.target.value })
+  // }
+  // // console.log('select value', selectedValue)
 
-  const handleSelect = (e) => {
-    setAmount('')
-    setSelectValue({ value: e.target.value })
-  }
-
-  const doMath = (money) => {
-    if (selectValue.value === 'add') {
-      return `$${parseFloat(money) + parseFloat(profileUser.amount)} `
-    }
-    if (selectValue.value === 'remove') {
-      if (parseFloat(profileUser.amount) === parseFloat(money)) {
-        return `$${
-          parseFloat(profileUser.amount) - parseFloat(profileUser.amount)
-        } `
-      }
-      return `$${parseFloat(profileUser.amount) - parseFloat(money)} `
-    }
-    if (selectValue.value === 'zero') {
-      return `$${
-        parseFloat(profileUser.amount) - parseFloat(profileUser.amount)
-      } `
-    }
-  }
+  // const doMath = (money) => {
+  //   if (selectValue.value === 'add') {
+  //     return `$${parseFloat(money) + parseFloat(profileUser.amount)} `
+  //   }
+  //   if (selectValue.value === 'remove') {
+  //     if (parseFloat(profileUser.amount) === parseFloat(money)) {
+  //       return `$${
+  //         parseFloat(profileUser.amount) - parseFloat(profileUser.amount)
+  //       } `
+  //     }
+  //     return `$${parseFloat(profileUser.amount) - parseFloat(money)} `
+  //   }
+  //   if (selectValue.value === 'zero') {
+  //     return `$${
+  //       parseFloat(profileUser.amount) - parseFloat(profileUser.amount)
+  //     } `
+  //   }
+  // }
 
   return (
     <>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <pre>{JSON.stringify(profileUser, null, 2)}</pre>
     </>
     // <Container component={Paper} className={classes.table}>
     //   <div className={classes.avatar}>
@@ -190,8 +191,8 @@ export const ProfilePage = () => {
     //     </strong>
     //     <div>
     //       <span>
-    //         {state.user.default_address.city.toUpperCase()},{' '}
-    //         {state.user.default_address.province_code.toUpperCase()}
+    //         {userDetails.user.default_address.city.toUpperCase()},{' '}
+    //         {userDetails.user.default_address.province_code.toUpperCase()}
     //       </span>
     //     </div>
     //   </div>
@@ -250,9 +251,9 @@ export const ProfilePage = () => {
     //   </form>
 
     //   <div className={classes.info}>
-    //     <small>Orders placed: {state.user.orders_count}</small>
+    //     <small>Orders placed: {userDetails.user.orders_count}</small>
     //     <small>
-    //       Status: {state.user.state === 'enabled' ? 'Active' : 'Disabled'}
+    //       Status: {userDetails.user.state === 'enabled' ? 'Active' : 'Disabled'}
     //     </small>
     //   </div>
     // </Container>

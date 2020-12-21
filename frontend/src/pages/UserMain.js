@@ -5,15 +5,17 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Loading } from '../components/Loading'
-import { SearchBar } from '../components/SearchBar'
-import { UsersDataContext } from '../context'
+import { Loading, Row, SearchBar } from '../components'
+import {
+  useDataDispatch,
+  useDataState,
+  useSearchDispatch,
+  useSearchState
+} from '../context/'
 import AuthService from '../services/auth.service'
-// import UserServices from '../services/user.service'
-import { Row } from '../utils/select'
-
+import UserServices from '../services/user.service'
 const useStyles = makeStyles({
   container: {
     display: 'flex',
@@ -56,23 +58,25 @@ const useStyles = makeStyles({
 })
 
 export const UsersPage = () => {
-  const {
-    usersData,
-    status,
-    isLoading,
-    count,
-    setIsLoading,
-    setStatus
-  } = useContext(UsersDataContext)
+  const dispatch = useDataDispatch()
+  const { usersData, isLoading } = useDataState()
+
+  const searchDispatch = useSearchDispatch()
+  const { query: QUERY } = useSearchState()
+
   const history = useHistory()
   const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(25)
 
+  const [didMount, setDidMount] = useState(false)
+  const [status, setStatus] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [count, setCount] = useState()
+
   const classes = useStyles()
 
   const handleChangePage = (e, newPage) => {
-    // console.log('newpage', newPage)
     setPage(newPage)
   }
 
@@ -88,15 +92,36 @@ export const UsersPage = () => {
     }
   }, [history])
 
+  const retrieveUsers = useCallback(async () => {
+    const { data } = await UserServices.getUsers()
+    setStatus(data.status.msg)
+    const filtered = data.api.userApi
+      .filter(
+        (user) => user.state !== 'disabled' && user.email.match(/^.+@ultra.me$/)
+      )
+      .sort((a, b) => (a.first_name < b.first_name ? -1 : 1))
+    setCount(filtered.length)
+    dispatch({ type: 'RETRIEVE_USERS', payload: filtered })
+    return filtered
+  }, [dispatch])
+
+  useEffect(() => {
+    setDidMount(true)
+    retrieveUsers()
+    return () => setDidMount(false)
+  }, [retrieveUsers])
+
   const handleQuery = (e) => {
     setPage(0)
-    setIsLoading(true)
     setStatus('Querying')
-    setSearchQuery(e.target.value)
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 300)
+    searchDispatch({ type: 'QUERY', payload: e.target.value })
+    setCount(array.length)
   }
+
+  if (isLoading || loading) {
+    return <Loading status={status} />
+  }
+
   let array = []
 
   return (
@@ -104,66 +129,56 @@ export const UsersPage = () => {
       <div className={classes.text}>
         <SearchBar handleQuery={handleQuery} />
       </div>
-      {isLoading ? (
-        <div className={classes.loading}>
-          <Loading status={status} />
-        </div>
-      ) : (
-        <div className={classes.container}>
-          <Table
-            size="small"
-            aria-label="a dense table"
-            className={classes.table}
+
+      <div className={classes.container}>
+        <Table
+          size="small"
+          aria-label="a dense table"
+          className={classes.table}
+        >
+          <TableHead
+          // className={classes.container}
           >
-            <TableHead
-            // className={classes.container}
-            >
-              <TableRow>
-                <TableCell>Shopify ID</TableCell>
-                <TableCell align="left">First Name</TableCell>
-                <TableCell align="left">Last Name</TableCell>
-                <TableCell align="left">email</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {usersData
-                .filter((value) => {
-                  if (searchQuery === '') {
-                    return value
-                  } else if (
-                    value.first_name
-                      .toLowerCase()
-                      .includes(searchQuery.toLowerCase()) ||
-                    value.last_name
-                      .toLowerCase()
-                      .includes(searchQuery.toLowerCase()) ||
-                    value.email
-                      .toLowerCase()
-                      .includes(searchQuery.toLowerCase())
-                  ) {
-                    array.push(value)
+            <TableRow>
+              <TableCell>Shopify ID</TableCell>
+              <TableCell align="left">First Name</TableCell>
+              <TableCell align="left">Last Name</TableCell>
+              <TableCell align="left">email</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {usersData
+              .filter((value) => {
+                if (QUERY === '') {
+                  return value
+                } else if (
+                  value.first_name
+                    .toLowerCase()
+                    .includes(QUERY.toLowerCase()) ||
+                  value.last_name.toLowerCase().includes(QUERY.toLowerCase()) ||
+                  value.email.toLowerCase().includes(QUERY.toLowerCase())
+                ) {
+                  array.push(value)
 
-                    return value
-                  } else {
-                    return null
-                  }
-                })
-
-                .map((user) => <Row key={user.id} user={user} />)
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
-            </TableBody>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={count}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangePerRow}
-            />
-          </Table>
-        </div>
-      )}
+                  return value
+                } else {
+                  return null
+                }
+              })
+              .map((user) => <Row key={user.id} user={user} />)
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
+          </TableBody>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={count}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangePerRow}
+          />
+        </Table>
+      </div>
     </>
   )
 }

@@ -1,5 +1,6 @@
-import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
+import TableRow from '@material-ui/core/TableRow'
+
 import { Link } from 'react-router-dom'
 
 export const Row = ({ user }) => {
