@@ -21,6 +21,11 @@ function doMath({ value }, amount, { api: currentUser }) {
         parseFloat(currentUser.amount) - parseFloat(currentUser.amount)
       } `
     }
+    if (parseFloat(currentUser.amount) < parseFloat(amount)) {
+      return `$${
+        parseFloat(currentUser.amount) - parseFloat(currentUser.amount)
+      } `
+    }
     return `$${parseFloat(currentUser.amount) - parseFloat(amount)} `
   }
   if (value === 'zero') {
@@ -36,7 +41,9 @@ function values({ value }) {
       ? 'Adding Credit'
       : value === 'remove'
       ? 'Removing Credit'
-      : 'Zeroing out'
+      : !value
+      ? 'Edit'
+      : 'Reset Credit'
 
   return {
     text,
@@ -56,7 +63,7 @@ export const reducer = selector({
     const valueToText =
       text === 'Zeroing out' && Object.values(user).length
         ? `$${parseInt(Object.values(user)[0].amount).toFixed(2)}`
-        : console.log(input)
+        : `$${input}`
     return {
       computation,
       text,
@@ -78,10 +85,10 @@ export const ProfileActions = () => {
 
   return (
     <>
-      {/* <pre>{JSON.stringify(currentUser, null, 2)}</pre> */}
+      {/* <pre>{JSON.stringify(computation, null, 2)}</pre> */}
       {/* <pre>{JSON.stringify(selectedOptions, null, 2)}</pre> */}
       {/* <pre>{JSON.stringify(input.value, null, 2)}</pre> */}
-      <pre>{JSON.stringify(text, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(text, null, 2)}</pre> */}
       <Table aria-label="simple table">
         <TableHead>
           <TableRow>
@@ -95,8 +102,12 @@ export const ProfileActions = () => {
             <TableCell component="th" scope="row">
               ${parseFloat(currentUser.api.amount).toFixed(2)}
             </TableCell>
-            <TableCell>{valueToText}</TableCell>
-            <TableCell>{input.length ? computation : ''}</TableCell>
+            <TableCell>{!input.length ? '' : valueToText}</TableCell>
+            <TableCell>
+              {!input.length
+                ? ` $${parseFloat(currentUser.api.amount).toFixed(2)}`
+                : computation}
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>

@@ -8,7 +8,7 @@ import { profileState } from '../pages/Profile'
 import { useRecoilValue, useRecoilState, atom } from 'recoil'
 import { useLocation } from 'react-router-dom'
 import { useQuery } from 'react-query'
-import { useRef } from 'react'
+import { useRef, Fragment } from 'react'
 const useStyles = makeStyles((theme) => ({
   table: {
     display: 'flex',
@@ -97,12 +97,8 @@ export const ProfileTable = () => {
     <div className={classes.avatar}>
       {Object.values(profileValue).map((item) => {
         return (
-          <>
-            <Avatar
-              key={item.email}
-              className={classes.purple}
-              style={{ marginRight: '10px' }}
-            >
+          <Fragment key={item.email}>
+            <Avatar className={classes.purple} style={{ marginRight: '10px' }}>
               {item.first_name.charAt(0)}
               {item.last_name.charAt(0)}
             </Avatar>
@@ -115,7 +111,7 @@ export const ProfileTable = () => {
               {item.default_address.city.toUpperCase()},{' '}
               {item.default_address.province_code.toUpperCase()}
             </span>
-          </>
+          </Fragment>
         )
       })}
       {/* <pre>{JSON.stringify(Object.values(profileValue), null, 2)}</pre> */}

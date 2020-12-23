@@ -18,8 +18,24 @@ class UserService {
   }
 
   addCredit(data) {
-    return axios.get(
-      API_URL + 'rewardify/addCredit',
+    console.log(data)
+    return axios.put(
+      'https://cors-anywhere.herokuapp.com/http://localhost:1337/api/rewardify/addCredit',
+      { headers: authHeader() },
+      data
+    )
+  }
+
+  removeCredit(data) {
+    return axios.put(
+      API_URL + 'rewardify/removeCredit',
+      { headers: authHeader() },
+      data
+    )
+  }
+  zeroCredit(data) {
+    return axios.put(
+      API_URL + 'rewardify/replaceCredit',
       { headers: authHeader() },
       data
     )

@@ -5,14 +5,20 @@ import { makeStyles } from '@material-ui/core/styles'
 import { memo, useEffect, useState } from 'react'
 import { useHistory, useLocation, useParams } from 'react-router-dom'
 import { ProfileActions, ProfileTable, ProfileForm } from '../components'
-
+import { Alert } from '@material-ui/lab'
 import AuthService from '../services/auth.service'
 import { atom, useRecoilState } from 'recoil'
+import UserServices from '../services/user.service'
 import { Loading } from '../components'
 
 export const profileState = atom({
   key: 'profilepage',
   default: []
+})
+
+export const statusState = atom({
+  key: 'statusState',
+  default: ''
 })
 
 export const ProfilePage = () => {
@@ -22,6 +28,7 @@ export const ProfilePage = () => {
 
   // const user = useRecoilValue(getUserQuery)
   const [profileUser, setProfileUser] = useRecoilState(profileState)
+  const [status, setStatus] = useRecoilState(statusState)
 
   const classes = useStyles()
 
@@ -36,30 +43,39 @@ export const ProfilePage = () => {
     setProfileUser(state)
   }, [setProfileUser, state])
 
-  const doMath = (option, amount, { api: currentUser }) => {
-    if (option === 'add') {
-      return `$${parseFloat(amount) + parseFloat(currentUser.amount)} `
-    }
-    if (option === 'remove') {
-      if (parseFloat(currentUser.amount) === parseFloat(amount)) {
-        return `$${
-          parseFloat(currentUser.amount) - parseFloat(currentUser.amount)
-        } `
+  function handleSubmit(amount, menuItem, user) {
+    console.log('handleSubmit called')
+    try {
+      setStatus('')
+      if (amount === '' || menuItem.value === '' || !user) {
+        setStatus('error')
       }
-      return `$${parseFloat(currentUser.amount) - parseFloat(amount)} `
-    }
-    if (option === 'zero') {
-      return `$${
-        parseFloat(currentUser.amount) - parseFloat(currentUser.amount)
-      } `
+      if (menuItem === 'add') {
+        console.log(user)
+        const data = {
+          userID: user.id,
+          email: '',
+          amount,
+          memo: '',
+          expiresAt: '2025-12-23T23:25:47.054Z'
+        }
+        return UserServices.addCredit(data)
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
 
   return (
-    <Container component={Paper}>
+    <Container component={Paper} className={classes.table}>
       <ProfileTable />
-      <ProfileActions doMath={doMath} />
-      <ProfileForm />
+      <ProfileActions />
+      <ProfileForm handleSubmit={handleSubmit} />
+      {status === 'error' && (
+        <Alert variant="filled" severity="error">
+          Cannot submit empty values
+        </Alert>
+      )}
     </Container>
   )
 }

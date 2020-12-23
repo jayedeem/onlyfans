@@ -60,10 +60,10 @@ export const UsersPage = () => {
     const { data } = await UserServices.getUsers()
     setStatus(data.status.msg)
     const filtered = data.api.userApi
-      .filter(
-        (user) => user.state !== 'disabled' && user.email.match(/^.+@ultra.me$/)
-      )
-      // .filter((user) => user.first_name.toLowerCase() === 'test')
+      // .filter(
+      //   (user) => user.state !== 'disabled' && user.email.match(/^.+@ultra.me$/)
+      // )
+      .filter((user) => user.first_name.toLowerCase() === 'test')
       .sort((a, b) => (a.first_name < b.first_name ? -1 : 1))
     setCount(filtered.length)
     setUserList(filtered)
@@ -80,7 +80,7 @@ export const UsersPage = () => {
   )
 
   if (isLoading || isFetching) {
-    return <Loading />
+    return <Loading status={'Fetching Users...'} />
   }
 
   if (error) {
