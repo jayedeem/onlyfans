@@ -1,6 +1,6 @@
 const axios = require('axios')
 const redisClient = require('../db/redis')
-
+const cors = require('../routes/cors')
 // const cacheData = redisClient.get('cacheData')
 // const { shopify } = JSON.parse(cacheData)
 
@@ -40,6 +40,15 @@ exports.retrieveUser = async (req, res, next) => {
 // Give customer credit
 exports.addCredit = async (req, res, next) => {
   const { email, amount, memo, expiresAt, userId } = req.body
+  console.log(
+    'add credit initializing ',
+    email,
+    amount,
+    memo,
+    expiresAt,
+    userId
+  )
+  // return res.send('hello')
   try {
     console.log('addcredit backend start')
     const cacheData = await redisClient.get('cacheToken')

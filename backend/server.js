@@ -15,7 +15,7 @@ const { cachedToken } = require('./middleware/')
 // const inSession = require('./middleware/inSession')
 // // Routes
 // const dashboardRoute = require('./routes/dashboard')
-// const rewardifyRoute = require('./routes/rewardifyRoutes')
+const rewardsRouter = require('./routes/rewardify')
 // const authRoute = require('./routes/auth')
 // const test = require('./routes/test')
 // const shopRoute = require('./routes/shopRoutes')

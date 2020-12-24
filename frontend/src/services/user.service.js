@@ -1,6 +1,6 @@
 import axios from 'axios'
 import authHeader from './auth.header'
-
+const user = JSON.parse(localStorage.getItem('user'))
 const API_URL = 'http://localhost:1337/api/'
 
 class UserService {
@@ -18,27 +18,59 @@ class UserService {
   }
 
   addCredit(data) {
-    console.log(data)
-    return axios.put(
-      'https://cors-anywhere.herokuapp.com/http://localhost:1337/api/rewardify/addCredit',
-      { headers: authHeader() },
-      data
-    )
+    try {
+      const res = axios({
+        url: 'http://localhost:1337/api/rewardify/addCredit',
+        method: 'PUT',
+        headers: {
+          'Context-type': 'application/json',
+          'x-access-token': user.accessToken
+        },
+        data
+      })
+
+      return res.data
+    } catch (error) {
+      console.error(error)
+    }
   }
 
+  //http://localhost:1337/api/rewardify/removeCredit
   removeCredit(data) {
-    return axios.put(
-      API_URL + 'rewardify/removeCredit',
-      { headers: authHeader() },
-      data
-    )
+    try {
+      const res = axios({
+        url: 'http://localhost:1337/api/rewardify/subtractCredit',
+        method: 'PUT',
+        headers: {
+          'Context-type': 'application/json',
+          'x-access-token': user.accessToken
+        },
+        data
+      })
+
+      return res.data
+    } catch (error) {
+      console.error(error)
+    }
   }
+
+  //'http://localhost:1337/api/rewardify/zeroCredit'
   zeroCredit(data) {
-    return axios.put(
-      API_URL + 'rewardify/replaceCredit',
-      { headers: authHeader() },
-      data
-    )
+    try {
+      const res = axios({
+        url: 'http://localhost:1337/api/rewardify/replaceCredit',
+        method: 'PUT',
+        headers: {
+          'Context-type': 'application/json',
+          'x-access-token': user.accessToken
+        },
+        data
+      })
+
+      return res.data
+    } catch (error) {
+      console.error(error)
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 import { Container, Paper } from '@material-ui/core'
-
+import axios from 'axios'
 import { deepPurple } from '@material-ui/core/colors'
 import { makeStyles } from '@material-ui/core/styles'
 import { memo, useEffect, useState } from 'react'
@@ -7,10 +7,15 @@ import { useHistory, useLocation, useParams } from 'react-router-dom'
 import { ProfileActions, ProfileTable, ProfileForm } from '../components'
 import { Alert } from '@material-ui/lab'
 import AuthService from '../services/auth.service'
-import { atom, useRecoilState } from 'recoil'
+import { atom, useRecoilState, useRecoilValue } from 'recoil'
 import UserServices from '../services/user.service'
+import { clickState } from '../components/ProfileForm'
 import { Loading } from '../components'
 
+export const textInputState = atom({
+  key: 'textinput',
+  default: ''
+})
 export const profileState = atom({
   key: 'profilepage',
   default: []
@@ -29,6 +34,7 @@ export const ProfilePage = () => {
   // const user = useRecoilValue(getUserQuery)
   const [profileUser, setProfileUser] = useRecoilState(profileState)
   const [status, setStatus] = useRecoilState(statusState)
+  const [click, setClick] = useRecoilState(clickState)
 
   const classes = useStyles()
 
@@ -43,23 +49,38 @@ export const ProfilePage = () => {
     setProfileUser(state)
   }, [setProfileUser, state])
 
-  function handleSubmit(amount, menuItem, user) {
-    console.log('handleSubmit called')
+  //http://localhost:1337/api/rewardify/addCredit
+
+  async function handleSubmit(amount, menuItem, user) {
     try {
       setStatus('')
       if (amount === '' || menuItem.value === '' || !user) {
         setStatus('error')
+        setClick(false)
       }
-      if (menuItem === 'add') {
-        console.log(user)
-        const data = {
-          userID: user.id,
-          email: '',
-          amount,
-          memo: '',
-          expiresAt: '2025-12-23T23:25:47.054Z'
-        }
-        return UserServices.addCredit(data)
+      const data = {
+        userId: Object.values(user)[0].customer.shopifyId,
+        email: '',
+        amount:
+          menuItem === 'zero'
+            ? String(parseFloat(Object.values(user)[0].amount).toFixed(2))
+            : amount,
+        memo: '',
+        expiresAt: '2025-12-23T23:25:47.054Z'
+      }
+      switch (menuItem) {
+        case 'add':
+          setClick(false)
+          return await UserServices.addCredit(data)
+        case 'remove':
+          setClick(false)
+          return await UserServices.removeCredit(data)
+
+        case 'zero':
+          setClick(false)
+          return await UserServices.removeCredit(data)
+        default:
+          return
       }
     } catch (error) {
       console.error(error)

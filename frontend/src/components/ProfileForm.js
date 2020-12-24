@@ -7,8 +7,11 @@ import {
   makeStyles
 } from '@material-ui/core'
 import { atom, useRecoilState, useRecoilValue } from 'recoil'
-import { profileState } from '../pages/Profile'
+import { textInputState } from '../pages/Profile'
+import { useState } from 'react'
+import { rewardsProfileState } from './ProfileTable'
 import UserServices from '../services/user.service'
+
 export const menuSelectState = atom({
   key: 'menuselect',
   default: {
@@ -16,11 +19,9 @@ export const menuSelectState = atom({
   }
 })
 
-export const textInputState = atom({
-  key: 'textinput',
-  default: {
-    value: ''
-  }
+export const clickState = atom({
+  key: 'clickState',
+  default: true
 })
 
 const useStyles = makeStyles((theme) => ({
@@ -43,28 +44,34 @@ const useStyles = makeStyles((theme) => ({
 export const ProfileForm = ({ handleSubmit }) => {
   const [menuValue, setMenuValue] = useRecoilState(menuSelectState)
   const [input, setInput] = useRecoilState(textInputState)
-  const { user } = useRecoilValue(profileState)
-
+  const [click, setClick] = useRecoilState(clickState)
+  const user = useRecoilValue(rewardsProfileState)
+  const [selectedInput, setSelectedInput] = useState('Disabled')
+  // const textInput = useRecoilValue(textInputState)
   const selectRef = useRef()
   const textRef = useRef()
   const classes = useStyles()
 
   const submitHandler = (e) => {
     e.preventDefault()
+    setClick(true)
+    setInput('')
     handleSubmit(input, menuValue.value, user)
-    console.log(user.id)
+    window.location.reload()
   }
 
   const handleSelect = (e) => {
+    if (menuValue.value === 'zero') {
+      setSelectedInput('Disabled')
+
+      setMenuValue({ value: e.target.value })
+    }
+    setSelectedInput('Amount')
     setMenuValue({ value: e.target.value })
   }
 
   const handleInput = (e) => {
-    if (!menuValue.value) {
-      setInput('')
-    } else {
-      setInput(e.target.value)
-    }
+    setInput(e.target.value)
   }
 
   return (
@@ -72,16 +79,14 @@ export const ProfileForm = ({ handleSubmit }) => {
       <TextField
         className={classes.field}
         style={{ marginRight: '15px', width: '85px' }}
-        placeholder={
-          !menuValue.value || menuValue.value === 'zero'
-            ? 'Disabled'
-            : '$ Amount...'
-        }
-        disabled={!menuValue.value || menuValue.value === 'zero'}
-        value={input.value}
-        inputRef={textRef}
+        placeholder={selectedInput}
+        disabled={selectedInput === 'Disabled'}
+        value={input}
+        // inputRef={textRef}
         onChange={handleInput}
-        // defaultValue={input.value}
+        // InputProps={{ handleInput }}
+        defaultValue=""
+        // inputRef
         name="amount"
         type="number"
       />

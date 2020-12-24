@@ -9,45 +9,46 @@ import { Loading } from './'
 import { useRecoilValue, selector } from 'recoil'
 import { rewardsProfileState } from './ProfileTable'
 import { menuSelectState } from '../components/ProfileForm'
-import { textInputState } from './ProfileForm'
+import { textInputState } from '../pages/Profile'
 
 function doMath({ value }, amount, { api: currentUser }) {
-  if (value === 'add') {
-    return `$${parseFloat(amount) + parseFloat(currentUser.amount)} `
-  }
-  if (value === 'remove') {
-    if (parseFloat(currentUser.amount) === parseFloat(amount)) {
+  switch (value) {
+    case 'add':
+      return `$${parseFloat(amount) + parseFloat(currentUser.amount)} `
+    case 'remove':
+      if (parseFloat(currentUser.amount) === parseFloat(amount)) {
+        return `$${
+          parseFloat(currentUser.amount) - parseFloat(currentUser.amount)
+        } `
+      }
+      if (parseFloat(currentUser.amount) < parseFloat(amount)) {
+        return `$${
+          parseFloat(currentUser.amount) - parseFloat(currentUser.amount)
+        } `
+      }
+      return `$${parseFloat(currentUser.amount) - parseFloat(amount)} `
+    case 'zero':
       return `$${
         parseFloat(currentUser.amount) - parseFloat(currentUser.amount)
       } `
-    }
-    if (parseFloat(currentUser.amount) < parseFloat(amount)) {
-      return `$${
-        parseFloat(currentUser.amount) - parseFloat(currentUser.amount)
-      } `
-    }
-    return `$${parseFloat(currentUser.amount) - parseFloat(amount)} `
-  }
-  if (value === 'zero') {
-    return `$${
-      parseFloat(currentUser.amount) - parseFloat(currentUser.amount)
-    } `
+    default:
+      return
   }
 }
 
 function values({ value }) {
-  const text =
-    value === 'add'
-      ? 'Adding Credit'
-      : value === 'remove'
-      ? 'Removing Credit'
-      : !value
-      ? 'Edit'
-      : 'Reset Credit'
-
-  return {
-    text,
-    value
+  switch (value) {
+    case 'add':
+      console.log('valuesFunc add')
+      return 'Adding Credit'
+    case 'remove':
+      console.log('valuesFunc remove')
+      return 'Remove Credit'
+    case 'zero':
+      console.log('valuesFunc zero')
+      return 'Reset Credit'
+    default:
+      return 'Edit'
   }
 }
 
@@ -59,16 +60,15 @@ export const reducer = selector({
     const input = get(textInputState)
     const computation =
       Object.values(user).length && doMath(option, input, user)
-    const { text, value } = values(option)
+    const textValues = values(option)
     const valueToText =
-      text === 'Zeroing out' && Object.values(user).length
+      textValues === 'zero' && Object.values(user).length
         ? `$${parseInt(Object.values(user)[0].amount).toFixed(2)}`
         : `$${input}`
     return {
       computation,
-      text,
-      valueToText,
-      value
+      textValues,
+      valueToText
     }
   }
 })
@@ -77,7 +77,7 @@ export const ProfileActions = () => {
   const currentUser = useRecoilValue(rewardsProfileState)
   const selectedOptions = useRecoilValue(menuSelectState)
   const input = useRecoilValue(textInputState)
-  const { computation, text, valueToText } = useRecoilValue(reducer)
+  const { computation, textValues: text, valueToText } = useRecoilValue(reducer)
 
   if (!Object.keys(currentUser).length) {
     return <Loading />
