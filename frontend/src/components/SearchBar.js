@@ -10,6 +10,7 @@ export const SearchBar = ({ handleQuery }) => {
       }}
       placeholder="Search..."
       onChange={handleQuery}
+      color="primary"
     />
   )
 }

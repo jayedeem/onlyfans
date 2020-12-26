@@ -1,16 +1,15 @@
 import { Container, Paper } from '@material-ui/core'
-import axios from 'axios'
+
 import { deepPurple } from '@material-ui/core/colors'
 import { makeStyles } from '@material-ui/core/styles'
-import { memo, useEffect, useState } from 'react'
-import { useHistory, useLocation, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useHistory, useLocation } from 'react-router-dom'
 import { ProfileActions, ProfileTable, ProfileForm } from '../components'
 import { Alert } from '@material-ui/lab'
 import AuthService from '../services/auth.service'
-import { atom, useRecoilState, useRecoilValue } from 'recoil'
+import { atom, useRecoilState } from 'recoil'
 import UserServices from '../services/user.service'
 import { clickState } from '../components/ProfileForm'
-import { Loading } from '../components'
 
 export const textInputState = atom({
   key: 'textinput',
@@ -32,9 +31,9 @@ export const ProfilePage = () => {
   const history = useHistory()
 
   // const user = useRecoilValue(getUserQuery)
-  const [profileUser, setProfileUser] = useRecoilState(profileState)
+  const [_, setProfileUser] = useRecoilState(profileState)
   const [status, setStatus] = useRecoilState(statusState)
-  const [click, setClick] = useRecoilState(clickState)
+  const [setClick] = useRecoilState(clickState)
 
   const classes = useStyles()
 

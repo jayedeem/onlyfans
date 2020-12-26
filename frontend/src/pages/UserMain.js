@@ -7,36 +7,32 @@ import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import { useCallback, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Loading, Row, SearchBar } from '../components'
+import { Loading, Row } from '../components'
 import { useQuery } from 'react-query'
-
-import { atom, useRecoilState } from 'recoil'
-
+import Grid from '@material-ui/core/Grid'
+import { useRecoilState } from 'recoil'
+import {
+  userListState,
+  searchQuery,
+  pageState,
+  userCountState,
+  searchQueryLength
+} from '../recoil'
 import AuthService from '../services/auth.service'
 import UserServices from '../services/user.service'
-
-const userListState = atom({
-  key: 'userlist',
-  default: []
-})
-
-const searchQuery = atom({
-  key: 'searchquery',
-  default: ''
-})
 
 export const UsersPage = () => {
   const history = useHistory()
   // const [searchQuery, setSearchQuery] = useState('')
-  const [page, setPage] = useState(0)
+  const [page, setPage] = useRecoilState(pageState)
   const [rowsPerPage, setRowsPerPage] = useState(25)
 
-  const [didMount, setDidMount] = useState(false)
   const [status, setStatus] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [count, setCount] = useState()
+  // const [loading, setLoading] = useState(false)
+  const [count, setCount] = useRecoilState(userCountState)
   const [userList, setUserList] = useRecoilState(userListState)
   const [searchValue, setSearchValue] = useRecoilState(searchQuery)
+  const [searchLength, setSearchLength] = useRecoilState(searchQueryLength)
 
   const classes = useStyles()
 
@@ -60,16 +56,19 @@ export const UsersPage = () => {
     const { data } = await UserServices.getUsers()
     setStatus(data.status.msg)
     const filtered = data.api.userApi
-      // .filter(
-      //   (user) => user.state !== 'disabled' && user.email.match(/^.+@ultra.me$/)
-      // )
-      .filter((user) => user.first_name.toLowerCase() === 'test')
+      .filter(
+        (user) =>
+          user.state !== 'disabled' &&
+          // user.first_name.toLowerCase() === 'test' &&
+          user.email.match(/^.+@ultra.me$/)
+      )
+      // .filter((user) => user.first_name.toLowerCase() === 'test')
       .sort((a, b) => (a.first_name < b.first_name ? -1 : 1))
     setCount(filtered.length)
     setUserList(filtered)
 
     return filtered
-  }, [setUserList])
+  }, [setUserList, setCount])
 
   const { data: userData, isLoading, error, isFetching } = useQuery(
     'userlist',
@@ -84,33 +83,24 @@ export const UsersPage = () => {
   }
 
   if (error) {
+    // history.push('/login')
     return <p>Something went wrong</p>
   }
-
-  const handleQuery = (e) => {
-    setPage(0)
-    setStatus('Querying')
-    setSearchValue(e.target.value)
-    setCount(array.length)
-  }
-
-  let array = []
+  let userLengthArray = []
 
   return (
-    <>
-      <div className={classes.text}>
-        <SearchBar handleQuery={handleQuery} />
-      </div>
+    <Grid container spacing={2}>
+      <Grid item xs={12} className={classes.text}>
+        {/* <SearchBar handleQuery={handleQuery} /> */}
+      </Grid>
 
-      <div className={classes.container}>
+      <Grid item xs={12} className={classes.container}>
         <Table
           size="small"
           aria-label="a dense table"
           className={classes.table}
         >
-          <TableHead
-          // className={classes.container}
-          >
+          <TableHead>
             <TableRow>
               <TableCell>Shopify ID</TableCell>
               <TableCell align="left">First Name</TableCell>
@@ -119,7 +109,7 @@ export const UsersPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {userData
+            {userList
               .filter((value) => {
                 if (searchValue === '') {
                   return value
@@ -132,8 +122,9 @@ export const UsersPage = () => {
                     .includes(searchValue.toLowerCase()) ||
                   value.email.toLowerCase().includes(searchValue.toLowerCase())
                 ) {
-                  array.push(value)
-
+                  userLengthArray.push(value)
+                  // console.log(userLengthArray.length)
+                  // setCount(userLengthArray.length)
                   return value
                 } else {
                   return null
@@ -152,8 +143,8 @@ export const UsersPage = () => {
             onChangeRowsPerPage={handleChangePerRow}
           />
         </Table>
-      </div>
-    </>
+      </Grid>
+    </Grid>
   )
 }
 

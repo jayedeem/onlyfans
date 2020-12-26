@@ -10,7 +10,6 @@ import { atom, useRecoilState, useRecoilValue } from 'recoil'
 import { textInputState } from '../pages/Profile'
 import { useState } from 'react'
 import { rewardsProfileState } from './ProfileTable'
-import UserServices from '../services/user.service'
 
 export const menuSelectState = atom({
   key: 'menuselect',
@@ -44,12 +43,12 @@ const useStyles = makeStyles((theme) => ({
 export const ProfileForm = ({ handleSubmit }) => {
   const [menuValue, setMenuValue] = useRecoilState(menuSelectState)
   const [input, setInput] = useRecoilState(textInputState)
-  const [click, setClick] = useRecoilState(clickState)
+  const [setClick] = useRecoilState(clickState)
   const user = useRecoilValue(rewardsProfileState)
   const [selectedInput, setSelectedInput] = useState('Disabled')
   // const textInput = useRecoilValue(textInputState)
   const selectRef = useRef()
-  const textRef = useRef()
+
   const classes = useStyles()
 
   const submitHandler = (e) => {

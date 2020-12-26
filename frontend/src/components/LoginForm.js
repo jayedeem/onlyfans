@@ -9,18 +9,14 @@ import { useHistory } from 'react-router-dom'
 import CheckButton from 'react-validation/build/button'
 import Form from 'react-validation/build/form'
 import AuthService from '../services/auth.service'
-import { Loading } from './'
-const useStyles = makeStyles((theme) => ({
-  container: {
-    display: 'flex',
-    alignContent: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    height: '80vh',
-    maxWidth: '500px'
-  }
-}))
+import { Loading } from '.'
+import { useRecoilState } from 'recoil'
+import {
+  usernameState,
+  passwordState,
+  loadingState,
+  messageState
+} from '../recoil'
 
 const required = (value) => {
   if (!value) {
@@ -32,23 +28,14 @@ const required = (value) => {
   }
 }
 
-export const Login = ({ setRedirectToReferrer }) => {
+export const LoginForm = ({}) => {
   const form = useRef()
   const checkBtn = useRef()
   const history = useHistory()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-
-  useEffect(() => {
-    const user = AuthService.getCurrentUser()
-    if (user) {
-      return history.push('/users')
-    }
-  }, [history])
-
-  const classes = useStyles()
+  const [username, setUsername] = useRecoilState(usernameState)
+  const [password, setPassword] = useRecoilState(passwordState)
+  const [loading, setLoading] = useRecoilState(loadingState)
+  const [message, setMessage] = useRecoilState(messageState)
 
   const onChangeUsername = (e) => {
     const username = e.target.value
@@ -73,8 +60,8 @@ export const Login = ({ setRedirectToReferrer }) => {
     if (checkBtn.current.context._errors.length === 0) {
       AuthService.login(username, password).then(
         () => {
-          setRedirectToReferrer(true)
-          // history.push('/')
+          window.location.reload()
+          return history.push('/')
         },
         (error) => {
           const resMessage =
@@ -98,7 +85,7 @@ export const Login = ({ setRedirectToReferrer }) => {
   }
 
   return (
-    <Container className={classes.container}>
+    <>
       <Form onSubmit={handleLogin} noValidate ref={form}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
@@ -112,6 +99,7 @@ export const Login = ({ setRedirectToReferrer }) => {
                   variant="outlined"
                   value={username}
                   onChange={onChangeUsername}
+                  required={required}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -124,6 +112,7 @@ export const Login = ({ setRedirectToReferrer }) => {
                   variant="outlined"
                   value={password}
                   onChange={onChangePassword}
+                  required={required}
                 />
               </Grid>
             </Grid>
@@ -144,6 +133,6 @@ export const Login = ({ setRedirectToReferrer }) => {
         )}
         <CheckButton style={{ display: 'none' }} ref={checkBtn} />
       </Form>
-    </Container>
+    </>
   )
 }

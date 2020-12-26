@@ -8,7 +8,7 @@ import { profileState } from '../pages/Profile'
 import { useRecoilValue, useRecoilState, atom } from 'recoil'
 import { useLocation } from 'react-router-dom'
 import { useQuery } from 'react-query'
-import { useRef, Fragment } from 'react'
+import { Fragment } from 'react'
 const useStyles = makeStyles((theme) => ({
   table: {
     display: 'flex',
@@ -69,7 +69,7 @@ export const ProfileTable = () => {
     state: { user }
   } = useLocation()
 
-  const [rewardsData, setRewardsData] = useRecoilState(rewardsProfileState)
+  const [_, setRewardsData] = useRecoilState(rewardsProfileState)
   const profileValue = useRecoilValue(profileState)
   const classes = useStyles()
 
