@@ -7,8 +7,8 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import { useLocation } from 'react-router-dom'
 import { userState } from '../App'
-
-import { useRecoilState } from 'recoil'
+import { profileState } from '../pages/Profile'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import { userCountState, pageState, searchQuery } from '../recoil'
 import { useState } from 'react'
 import { Loading } from './'
@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const Navbar = () => {
   const [userAuth, setUserAuth] = useRecoilState(userState)
+  const currentUser = useRecoilValue(profileState)
   const [_, setPage] = useRecoilState(pageState)
   const [isLoading, setIsLoading] = useState(false)
   const [searchValue, setSearchValue] = useRecoilState(searchQuery)
@@ -49,8 +50,10 @@ export const Navbar = () => {
   }
 
   const toggleSearchBar = () => {
+    setSearchValue('')
     setToggleSearch(!toggleSearch)
   }
+  console.log(currentUser.user.id)
 
   const handleQuery = (e) => {
     setPage(0)
@@ -69,7 +72,7 @@ export const Navbar = () => {
           <Typography variant="h6" className={classes.title}>
             CMS
           </Typography>
-          {location.pathname !== '/users/:id' && (
+          {location.pathname !== `/users/${currentUser.user.id}` && (
             <IconButton
               onClick={toggleSearchBar}
               aria-label="search"
@@ -78,7 +81,8 @@ export const Navbar = () => {
               <SearchIcon />
             </IconButton>
           )}
-          {toggleSearch && location.pathname !== `/users/:id'` ? (
+          {toggleSearch &&
+          location.pathname !== `/users/${currentUser.user.id}` ? (
             <SearchBar handleQuery={handleQuery} />
           ) : null}
 
