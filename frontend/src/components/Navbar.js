@@ -16,7 +16,13 @@ import { SearchBar } from './'
 import SearchIcon from '@material-ui/icons/Search'
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute'
   },
   menuButton: {
     marginRight: theme.spacing(2)
@@ -53,26 +59,24 @@ export const Navbar = () => {
     setSearchValue('')
     setToggleSearch(!toggleSearch)
   }
-  console.log(currentUser.user.id)
 
   const handleQuery = (e) => {
     setPage(0)
-    // setStatus('Querying')
+
     setSearchValue(e.target.value)
-    console.log(searchValue)
-    // setCount(searchValue.length)
   }
   if (isLoading) {
     return <Loading />
   }
   return (
-    <div className={classes.root}>
-      <AppBar position="fixed" color={'#fff'}>
+    <div>
+      <AppBar className={classes.root} position="fixed" color={'#fff'}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
             CMS
           </Typography>
-          {location.pathname !== `/users/${currentUser.user.id}` && (
+          {currentUser ||
+          location.pathname !== `/users/${currentUser.user.id}` ? (
             <IconButton
               onClick={toggleSearchBar}
               aria-label="search"
@@ -80,8 +84,8 @@ export const Navbar = () => {
             >
               <SearchIcon />
             </IconButton>
-          )}
-          {toggleSearch &&
+          ) : null}
+          {currentUser ||
           location.pathname !== `/users/${currentUser.user.id}` ? (
             <SearchBar handleQuery={handleQuery} />
           ) : null}

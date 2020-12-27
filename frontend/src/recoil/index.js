@@ -44,3 +44,27 @@ export const searchQueryLength = atom({
   key: 'searchQueryLength',
   default: []
 })
+
+/**
+ * user creation block
+ */
+
+export const firstNameState = atom({
+  key: 'firstNameState',
+  default: ''
+})
+
+export const lastNameState = atom({
+  key: 'lastNameState',
+  default: ''
+})
+
+export const initialAmountState = atom({
+  key: 'initialAmountState',
+  default: ''
+})
+
+export const emailState = atom({
+  key: 'emailState',
+  default: ''
+})

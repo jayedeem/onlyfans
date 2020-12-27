@@ -59,7 +59,7 @@ exports.retrieveUsers = async (req, res, next) => {
 
 exports.createUser = async (req, res, next) => {
   const { email, first_name, last_name } = req.body
-
+  console.log('creation', email, first_name, last_name)
   try {
     const { data } = await axios.request({
       url: `https://ultra-swag.myshopify.com/admin/api/2020-10/customers.json`,
@@ -88,7 +88,8 @@ exports.createUser = async (req, res, next) => {
     } else {
       return res.json({
         status: {
-          msg: 'User Created'
+          msg: 'User Created',
+          data
         }
       })
     }

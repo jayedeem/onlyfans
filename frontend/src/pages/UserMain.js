@@ -7,10 +7,11 @@ import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import { useCallback, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Loading, Row } from '../components'
+import { AddUser, Loading, Row } from '../components'
 import { useQuery } from 'react-query'
 import Grid from '@material-ui/core/Grid'
 import { useRecoilState } from 'recoil'
+import IconButton from '@material-ui/core/IconButton'
 import {
   userListState,
   searchQuery,
@@ -20,6 +21,8 @@ import {
 } from '../recoil'
 import AuthService from '../services/auth.service'
 import UserServices from '../services/user.service'
+import AddIcon from '@material-ui/icons/Add'
+import Modal from '@material-ui/core/Modal'
 
 export const UsersPage = () => {
   const history = useHistory()
@@ -28,7 +31,8 @@ export const UsersPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(25)
 
   const [status, setStatus] = useState('')
-  // const [loading, setLoading] = useState(false)
+  const [modalStyle] = useState(getModalStyle)
+  const [open, setOpen] = useState(false)
   const [count, setCount] = useRecoilState(userCountState)
   const [userList, setUserList] = useRecoilState(userListState)
   const [searchValue, setSearchValue] = useRecoilState(searchQuery)
@@ -43,6 +47,14 @@ export const UsersPage = () => {
   const handleChangePerRow = (e) => {
     setRowsPerPage(parseInt(e.target.value, 10))
     setPage(0)
+  }
+
+  const handleOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
   }
 
   useEffect(() => {
@@ -91,9 +103,16 @@ export const UsersPage = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} className={classes.text}>
-        {/* <SearchBar handleQuery={handleQuery} /> */}
+        <IconButton aria-label="search" color="inherit" onClick={handleOpen}>
+          <AddIcon />
+        </IconButton>
       </Grid>
-
+      <AddUser
+        handleOpen={handleOpen}
+        handleClose={handleClose}
+        open={open}
+        setOpen={setOpen}
+      />
       <Grid item xs={12} className={classes.container}>
         <Table
           size="small"
@@ -148,7 +167,7 @@ export const UsersPage = () => {
   )
 }
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     flexDirection: 'row',
@@ -172,10 +191,10 @@ const useStyles = makeStyles({
   text: {
     width: '100%',
     display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignContent: 'center',
-    alignItems: 'center',
+    flexDirection: 'row',
+    // justifyContent: 'center',
+    // alignContent: 'end',
+    alignItems: 'end',
     marginTop: '100px'
   },
   loading: {
@@ -186,5 +205,28 @@ const useStyles = makeStyles({
     alignContent: 'center',
     width: '100%',
     marginTop: '20px'
+  },
+  paper: {
+    position: 'absolute',
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3)
   }
-})
+}))
+
+function rand() {
+  return Math.round(Math.random() * 20) - 10
+}
+
+function getModalStyle() {
+  const top = 50 + rand()
+  const left = 50 + rand()
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`
+  }
+}

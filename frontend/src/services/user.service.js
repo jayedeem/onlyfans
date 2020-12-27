@@ -72,6 +72,27 @@ class UserService {
       console.error(error)
     }
   }
+  async createUser(firstName, lastName, email, amount) {
+    try {
+      const res = await axios({
+        url: 'http://localhost:1337/api/shopify/userCreation',
+        method: 'POST',
+        headers: {
+          'Context-type': 'application/json',
+          'x-access-token': user.accessToken
+        },
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          email
+        }
+      })
+
+      return res.data
+    } catch (error) {
+      console.error(error)
+    }
+  }
 }
 
 export default new UserService()

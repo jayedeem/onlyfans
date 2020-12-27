@@ -28,7 +28,7 @@ const required = (value) => {
   }
 }
 
-export const LoginForm = ({}) => {
+export const LoginForm = () => {
   const form = useRef()
   const checkBtn = useRef()
   const history = useHistory()
@@ -99,7 +99,7 @@ export const LoginForm = ({}) => {
                   variant="outlined"
                   value={username}
                   onChange={onChangeUsername}
-                  required={required}
+                  inputProps={required}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -112,7 +112,7 @@ export const LoginForm = ({}) => {
                   variant="outlined"
                   value={password}
                   onChange={onChangePassword}
-                  required={required}
+                  inputProps={required}
                 />
               </Grid>
             </Grid>
