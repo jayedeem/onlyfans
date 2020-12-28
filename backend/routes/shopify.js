@@ -20,4 +20,10 @@ module.exports = function (app) {
     authJwt.verifyToken,
     controller.createUser
   )
+  app.get(
+    '/api/shopify/reset',
+    cors.corsWithOptions,
+    authJwt.verifyToken,
+    controller.resetUsers
+  )
 }

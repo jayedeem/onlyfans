@@ -10,6 +10,12 @@ class UserService {
     })
   }
 
+  resetUsers() {
+    return axios.get('http://localhost:1337/api/shopify/reset', {
+      headers: authHeader()
+    })
+  }
+
   getUser(id) {
     console.log('getuser', id)
     return axios.get(API_URL + `rewardify/user/${id}`, {

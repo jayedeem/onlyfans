@@ -23,7 +23,7 @@ import AuthService from '../services/auth.service'
 import UserServices from '../services/user.service'
 import AddIcon from '@material-ui/icons/Add'
 import Modal from '@material-ui/core/Modal'
-
+import RotateLeftIcon from '@material-ui/icons/RotateLeft'
 export const UsersPage = () => {
   const history = useHistory()
   // const [searchQuery, setSearchQuery] = useState('')
@@ -37,7 +37,7 @@ export const UsersPage = () => {
   const [userList, setUserList] = useRecoilState(userListState)
   const [searchValue, setSearchValue] = useRecoilState(searchQuery)
   const [searchLength, setSearchLength] = useRecoilState(searchQueryLength)
-
+  const [isLoading, setIsLoading] = useState(false)
   const classes = useStyles()
 
   const handleChangePage = (e, newPage) => {
@@ -65,16 +65,15 @@ export const UsersPage = () => {
   }, [history])
 
   const retrieveUsers = useCallback(async () => {
-    const { data } = await UserServices.getUsers()
+    const { data } = await UserServices.resetUsers()
     setStatus(data.status.msg)
-    const filtered = data.api.userApi
-      .filter(
-        (user) =>
-          user.state !== 'disabled' &&
-          // user.first_name.toLowerCase() === 'test' &&
-          user.email.match(/^.+@ultra.me$/)
-      )
-      // .filter((user) => user.first_name.toLowerCase() === 'test')
+    const filtered = data.status.userApi
+      // .filter(
+      //   (user) => user.state !== 'disabled'
+      //   // user.first_name.toLowerCase() === 'test' &&
+      //   // user.email.match(/^.+@ultra.me$/)
+      // )
+      // // .filter((user) => user.first_name.toLowerCase() === 'test')
       .sort((a, b) => (a.first_name < b.first_name ? -1 : 1))
     setCount(filtered.length)
     setUserList(filtered)
@@ -82,7 +81,7 @@ export const UsersPage = () => {
     return filtered
   }, [setUserList, setCount])
 
-  const { data: userData, isLoading, error, isFetching } = useQuery(
+  const { data: userData, isLoading: loading, error, isFetching } = useQuery(
     'userlist',
     retrieveUsers,
     {
@@ -90,21 +89,32 @@ export const UsersPage = () => {
     }
   )
 
-  if (isLoading || isFetching) {
-    return <Loading status={'Fetching Users...'} />
-  }
-
   if (error) {
     // history.push('/login')
     return <p>Something went wrong</p>
   }
-  let userLengthArray = []
+  const handleReset = async () => {
+    setIsLoading(true)
 
+    await retrieveUsers()
+
+    // window.location.reload()
+
+    setIsLoading(false)
+  }
+
+  let userLengthArray = []
+  // if (loading || isFetching || isLoading) {
+  //   return <Loading status={'Fetching Users...'} />
+  // }
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} className={classes.text}>
         <IconButton aria-label="search" color="inherit" onClick={handleOpen}>
           <AddIcon />
+        </IconButton>
+        <IconButton aria-label="search" color="inherit" onClick={handleReset}>
+          <RotateLeftIcon />
         </IconButton>
       </Grid>
       <AddUser
@@ -192,9 +202,9 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    // justifyContent: 'center',
+    justifyContent: 'center',
     // alignContent: 'end',
-    alignItems: 'end',
+    alignItems: 'center',
     marginTop: '100px'
   },
   loading: {

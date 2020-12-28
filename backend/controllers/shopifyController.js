@@ -1,5 +1,7 @@
 const axios = require('axios')
 const redisClient = require('../db/redis')
+
+const Shopify = require('shopify-api-node')
 const sToken = Buffer.from(
   `${process.env.SHOPIFY_KEY}:${process.env.SHOPIFY_PASSWORD}`,
   'utf8'
@@ -57,6 +59,42 @@ exports.retrieveUsers = async (req, res, next) => {
   }
 }
 
+exports.resetUsers = (req, res, next) => {
+  ;(async () => {
+    const shopify = new Shopify({
+      shopName: 'ultra-swag.myshopify.com',
+      apiKey: process.env.SHOPIFY_KEY,
+      password: process.env.SHOPIFY_PASSWORD,
+      autoLimit: false
+    })
+    let params = { limit: 250 }
+    let results = []
+
+    do {
+      const customers = await shopify.customer.list(params)
+      results.push(customers)
+      console.log(customers.length)
+      params = customers.nextPageParameters
+    } while (params !== undefined)
+    const userApi = results.flat(1)
+
+    // cacheData = {
+    //   userApi
+    // }
+    // cacheTime = Date.now()
+    // cacheData.cacheTime = cacheTime
+    // const userData = JSON.stringify(cacheData)
+
+    // await redisClient.set('users', userData, 'ex', 3600)
+    // console.log('reset complete')
+    return res.status(200).json({
+      status: {
+        msg: 'Completed',
+        userApi
+      }
+    })
+  })().catch((err) => console.err(err))
+}
 exports.createUser = async (req, res, next) => {
   const { email, first_name, last_name } = req.body
   console.log('creation', email, first_name, last_name)
@@ -75,7 +113,16 @@ exports.createUser = async (req, res, next) => {
           email,
           verified_email: true,
           tags: 'employee',
-          tax_exempt: true
+          tax_exempt: true,
+          addresses: [
+            {
+              address1: '1550 Scenic Ave, Ste 100',
+              city: 'Costa Mesa',
+              province: 'CA',
+              zip: '92692',
+              country: 'US'
+            }
+          ]
         }
       }
     })

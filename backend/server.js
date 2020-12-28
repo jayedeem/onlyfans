@@ -83,7 +83,6 @@ app.use(express.json())
 
 // app.get('/test/api', test)
 require('./routes/auth')(app)
-app.use(cachedToken)
 require('./routes/user')(app)
 require('./routes/shopify')(app)
 require('./routes/dashboard')(app)

@@ -1,6 +1,7 @@
-const { authJwt } = require('../middleware')
+const { authJwt, cachedToken } = require('../middleware')
 const controller = require('../controllers/rewardifyController')
 const cors = require('./cors')
+
 module.exports = function (app) {
   app.use(cors.corsWithOptions, (req, res, next) => {
     // res.header(
@@ -14,6 +15,7 @@ module.exports = function (app) {
     '/api/rewardify/user/:id',
     cors.cors,
     authJwt.verifyToken,
+    cachedToken,
     controller.retrieveUser
   )
   app.put(
@@ -21,6 +23,7 @@ module.exports = function (app) {
     cors.corsWithOptions,
     authJwt.verifyToken,
     authJwt.isAdmin,
+    cachedToken,
     controller.addCredit
   )
   app.put(
@@ -28,6 +31,7 @@ module.exports = function (app) {
     cors.corsWithOptions,
     authJwt.verifyToken,
     authJwt.isAdmin,
+    cachedToken,
     controller.subtractCredit
   )
   app.put(
@@ -35,6 +39,7 @@ module.exports = function (app) {
     cors.corsWithOptions,
     authJwt.verifyToken,
     authJwt.isAdmin,
+    cachedToken,
     controller.replaceCredit
   )
 }

@@ -1,8 +1,5 @@
 const axios = require('axios')
 const redisClient = require('../db/redis')
-const cors = require('../routes/cors')
-// const cacheData = redisClient.get('cacheData')
-// const { shopify } = JSON.parse(cacheData)
 
 exports.retrieveUser = async (req, res, next) => {
   try {
@@ -77,6 +74,11 @@ exports.addCredit = async (req, res, next) => {
     })
   } catch (error) {
     console.error(error)
+    return res.status(400).json({
+      status: {
+        msg: error
+      }
+    })
   }
 }
 

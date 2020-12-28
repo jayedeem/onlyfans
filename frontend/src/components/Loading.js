@@ -9,7 +9,7 @@ const useStyles = makeStyles({
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '30vh'
+    height: '80vh'
   }
 })
 

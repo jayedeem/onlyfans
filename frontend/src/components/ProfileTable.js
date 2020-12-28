@@ -99,17 +99,17 @@ export const ProfileTable = () => {
         return (
           <Fragment key={item.email}>
             <Avatar className={classes.purple} style={{ marginRight: '10px' }}>
-              {item.first_name.charAt(0)}
-              {item.last_name.charAt(0)}
+              {item.first_name.charAt(0) || ''}
+              {item.last_name.charAt(0) || ''}
             </Avatar>
 
             <strong style={{ padding: '5px' }}>
-              {item.first_name} {item.last_name}
+              {item.first_name || ''} {item.last_name || ''}
             </strong>
 
             <span>
-              {item.default_address.city.toUpperCase()},{' '}
-              {item.default_address.province_code.toUpperCase()}
+              {item.default_address.city.toUpperCase() || ''},{' '}
+              {item.default_address.province_code.toUpperCase() || ''}
             </span>
           </Fragment>
         )

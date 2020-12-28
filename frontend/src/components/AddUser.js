@@ -7,6 +7,8 @@ import TextField from '@material-ui/core/TextField'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { useRecoilState, useRecoilValue } from 'recoil'
+import { userListState } from '../recoil'
+import * as yup from 'yup'
 import UserServices from '../services/user.service'
 import {
   emailState,
@@ -14,6 +16,9 @@ import {
   lastNameState,
   initialAmountState
 } from '../recoil'
+import Alert from '@material-ui/lab/Alert'
+import { useFormik } from 'formik'
+import { Loading } from './'
 function rand() {
   return Math.round(Math.random() * 20) - 10
 }
@@ -42,144 +47,74 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column'
   }
 }))
+const validationSchema = yup.object({
+  firstName: yup.string().required('Required!'),
+  lastName: yup.string().required('Required!'),
+  email: yup.string().email().required('Required!'),
+  amount: yup.number().required('Required!')
+})
 
-export const AddUser = ({ handleClose, open }) => {
+export const AddUser = ({ handleClose, open, setOpen }) => {
   const classes = useStyles()
   const [firstName, setFirstName] = useRecoilState(firstNameState)
   const [lastName, setLastName] = useRecoilState(lastNameState)
   const [amount, setAmount] = useRecoilState(initialAmountState)
   const [email, setEmail] = useRecoilState(emailState)
+  const [userList, setUserList] = useRecoilState(userListState)
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState('')
   const form = useRef()
   const checkBtn = useRef()
   const [modalStyle] = useState(getModalStyle)
+  const [loading, setLoading] = useState('')
 
-  const onChangeFirstName = (e) => {
-    setFirstName(e.target.value)
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      amount: ''
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      handleSubmit(values)
+    }
+  })
+
+  const handleSubmit = (values) => {
+    if (!values) {
+      setMessage('Must enter values')
+    }
+    setLoading(true)
+
+    console.log(values.firstName, values.lastName, values.email, values.amount)
+    UserServices.createUser(values.firstName, values.lastName, values.email)
+      .then((res) => res)
+
+      .then((res) => {
+        const data = {
+          userId: String(res.status.data.customer.id),
+          email: '',
+          amount: String(values.amount),
+          memo: '',
+          expiresAt: '2025-12-23T23:25:47.054Z'
+        }
+
+        return setTimeout(() => {
+          return UserServices.addCredit(data)
+        }, 4000)
+      })
+      .then(() => formik.resetForm())
+      .then(() => {
+        setOpen(!open)
+        setLoading(false)
+      })
+      .catch((err) => console.log(err))
   }
 
-  const onChangeLastName = (e) => {
-    setLastName(e.target.value)
+  if (formik.isSubmitting) {
+    return <Loading />
   }
-
-  const onChangeAmount = (e) => {
-    setAmount(e.target.value)
-  }
-
-  const onChangeEmail = (e) => {
-    setEmail(e.target.value)
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    // form.current.validateAll()
-    console.log(firstName, lastName, email, amount)
-    UserServices.createUser(firstName, lastName, email).then((res) =>
-      setStatus(res.status.msg)
-    )
-    // .then(UserServices.addCredit())
-
-    // if (checkBtn.current.context._errors.length === 0) {
-    //   UserServices.createUser(firstName, lastName, amount).then(
-    //     () => {
-    //       window.location.reload()
-    //       return history.push('/')
-    //     },
-    //     (error) => {
-    //       const resMessage =
-    //         (error.response &&
-    //           error.response.data &&
-    //           error.response.data.message) ||
-    //         error.message ||
-    //         error.toString()
-
-    //       setLoading(false)
-    //       setMessage(resMessage)
-    //       setPassword('')
-    //     }
-    //   )
-    // } else {
-    //   setLoading(false)
-    // }
-  }
-
-  const creationProcess = (
-    <div style={modalStyle} className={classes.paper} noValidation ref={form}>
-      <h2>Create New User</h2>
-
-      <Form onSubmit={handleSubmit} ref={form}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="First Name"
-                  name="firstName"
-                  size="small"
-                  variant="outlined"
-                  type="text"
-                  value={firstName}
-                  onChange={onChangeFirstName}
-                  placeholder="First Name..."
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  name="lastName"
-                  size="small"
-                  type="text"
-                  value={lastName}
-                  onChange={onChangeLastName}
-                  placeholder="Last Name..."
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  name="email"
-                  size="small"
-                  type="text"
-                  value={email}
-                  onChange={onChangeEmail}
-                  placeholder="Email..."
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Starting Amount"
-                  name="amount"
-                  size="small"
-                  type="number"
-                  value={amount}
-                  onChange={onChangeAmount}
-                  placeholder="Enter an amount..."
-                  variant="outlined"
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <Button color="primary" fullWidth type="submit" variant="contained">
-              Next
-            </Button>
-            {status && <p>{status}</p>}
-          </Grid>
-        </Grid>
-      </Form>
-
-      <AddUser />
-    </div>
-  )
-
   return (
     <div>
       <Modal
@@ -188,7 +123,107 @@ export const AddUser = ({ handleClose, open }) => {
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
       >
-        {creationProcess}
+        <div
+          style={modalStyle}
+          className={classes.paper}
+          noValidation
+          ref={form}
+        >
+          <AddUser />
+          <h2 style={{ marginBottom: '10px' }}>Create New User</h2>
+          <Form onSubmit={formik.handleSubmit}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="First Name"
+                      name="firstName"
+                      size="small"
+                      variant="outlined"
+                      type="text"
+                      value={formik.values.firstName}
+                      onChange={formik.handleChange}
+                      placeholder="First Name..."
+                    />
+                    {formik.errors.firstName ? (
+                      <Alert variant="filled" severity="error">
+                        {formik.errors.firstName}
+                      </Alert>
+                    ) : null}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Last Name"
+                      name="lastName"
+                      size="small"
+                      type="text"
+                      value={formik.values.lastName}
+                      onChange={formik.handleChange}
+                      placeholder="Last Name..."
+                      variant="outlined"
+                    />
+                    {formik.errors.lastName ? (
+                      <Alert variant="filled" severity="error">
+                        {formik.errors.lastName}
+                      </Alert>
+                    ) : null}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      name="email"
+                      size="small"
+                      type="text"
+                      value={formik.values.email}
+                      onChange={formik.handleChange}
+                      placeholder="Email..."
+                      variant="outlined"
+                    />
+                    {formik.errors.email ? (
+                      <Alert variant="filled" severity="error">
+                        {formik.errors.email}
+                      </Alert>
+                    ) : null}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Starting Amount"
+                      name="amount"
+                      size="small"
+                      type="number"
+                      value={formik.values.amount}
+                      onChange={formik.handleChange}
+                      placeholder="Enter an amount..."
+                      variant="outlined"
+                    />
+                    {formik.errors.amount ? (
+                      <Alert variant="filled" severity="error">
+                        {formik.errors.amount}
+                      </Alert>
+                    ) : null}
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  color="primary"
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  disabled={formik.isSubmitting}
+                >
+                  {formik.isSubmitting ? 'Loading' : 'Submit'}
+                </Button>
+                <small>Addresses are defaulted to Costa Mesa</small>
+              </Grid>
+            </Grid>
+          </Form>
+        </div>
       </Modal>
     </div>
   )
