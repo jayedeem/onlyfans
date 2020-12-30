@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
     alignContent: 'center',
     alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute'
+    justifyContent: 'space-between',
+    top: 0
   },
   menuButton: {
     marginRight: theme.spacing(2)
@@ -75,20 +75,6 @@ export const Navbar = () => {
           <Typography variant="h6" className={classes.title}>
             CMS
           </Typography>
-          {currentUser ||
-          location.pathname !== `/users/${currentUser.user.id}` ? (
-            <IconButton
-              onClick={toggleSearchBar}
-              aria-label="search"
-              color="inherit"
-            >
-              <SearchIcon />
-            </IconButton>
-          ) : null}
-          {currentUser ||
-          location.pathname !== `/users/${currentUser.user.id}` ? (
-            <SearchBar handleQuery={handleQuery} />
-          ) : null}
 
           <Button onClick={handleLogout} color="inherit">
             {userAuth ? 'Logout' : null}

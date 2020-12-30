@@ -31,7 +31,7 @@ export const ProfilePage = () => {
   const history = useHistory()
 
   // const user = useRecoilValue(getUserQuery)
-  const [_, setProfileUser] = useRecoilState(profileState)
+  const [profileUser, setProfileUser] = useRecoilState(profileState)
   const [status, setStatus] = useRecoilState(statusState)
   const [setClick] = useRecoilState(clickState)
 
@@ -51,11 +51,11 @@ export const ProfilePage = () => {
   //http://localhost:1337/api/rewardify/addCredit
 
   async function handleSubmit(amount, menuItem, user) {
+    console.log(amount, menuItem, user)
     try {
       setStatus('')
-      if (amount === '' || menuItem.value === '' || !user) {
+      if (amount === '' || menuItem === '' || !user) {
         setStatus('error')
-        setClick(false)
       }
       const data = {
         userId: Object.values(user)[0].customer.shopifyId,
@@ -69,14 +69,11 @@ export const ProfilePage = () => {
       }
       switch (menuItem) {
         case 'add':
-          setClick(false)
           return await UserServices.addCredit(data)
         case 'remove':
-          setClick(false)
           return await UserServices.removeCredit(data)
 
         case 'zero':
-          setClick(false)
           return await UserServices.removeCredit(data)
         default:
           return

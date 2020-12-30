@@ -7,7 +7,7 @@ import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import { useCallback, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { AddUser, Loading, Row } from '../components'
+import { AddUser, Loading, Row, SearchBar } from '../components'
 import { useQuery } from 'react-query'
 import Grid from '@material-ui/core/Grid'
 import { useRecoilState } from 'recoil'
@@ -24,6 +24,11 @@ import UserServices from '../services/user.service'
 import AddIcon from '@material-ui/icons/Add'
 import Modal from '@material-ui/core/Modal'
 import RotateLeftIcon from '@material-ui/icons/RotateLeft'
+import { Paper } from '@material-ui/core'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import { Box } from '@material-ui/core'
+
 export const UsersPage = () => {
   const history = useHistory()
   // const [searchQuery, setSearchQuery] = useState('')
@@ -68,8 +73,9 @@ export const UsersPage = () => {
     const { data } = await UserServices.resetUsers()
     setStatus(data.status.msg)
     const filtered = data.status.userApi
-      // .filter(
-      //   (user) => user.state !== 'disabled'
+      .filter(
+        (user) => user.state !== 'disabled' && user.email.match(/^.+@ultra.me$/)
+      )
       //   // user.first_name.toLowerCase() === 'test' &&
       //   // user.email.match(/^.+@ultra.me$/)
       // )
@@ -102,127 +108,160 @@ export const UsersPage = () => {
 
     setIsLoading(false)
   }
+  const handleQuery = (e) => {
+    setPage(0)
 
+    setSearchValue(e.target.value)
+  }
   let userLengthArray = []
   // if (loading || isFetching || isLoading) {
   //   return <Loading status={'Fetching Users...'} />
   // }
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} className={classes.text}>
-        <IconButton aria-label="search" color="inherit" onClick={handleOpen}>
-          <AddIcon />
-        </IconButton>
-        <IconButton aria-label="search" color="inherit" onClick={handleReset}>
-          <RotateLeftIcon />
-        </IconButton>
-      </Grid>
-      <AddUser
-        handleOpen={handleOpen}
-        handleClose={handleClose}
-        open={open}
-        setOpen={setOpen}
-      />
-      <Grid item xs={12} className={classes.container}>
-        <Table
-          size="small"
-          aria-label="a dense table"
-          className={classes.table}
-        >
-          <TableHead>
-            <TableRow>
-              <TableCell>Shopify ID</TableCell>
-              <TableCell align="left">First Name</TableCell>
-              <TableCell align="left">Last Name</TableCell>
-              <TableCell align="left">email</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {userList
-              .filter((value) => {
-                if (searchValue === '') {
-                  return value
-                } else if (
-                  value.first_name
-                    .toLowerCase()
-                    .includes(searchValue.toLowerCase()) ||
-                  value.last_name
-                    .toLowerCase()
-                    .includes(searchValue.toLowerCase()) ||
-                  value.email.toLowerCase().includes(searchValue.toLowerCase())
-                ) {
-                  userLengthArray.push(value)
-                  // console.log(userLengthArray.length)
-                  // setCount(userLengthArray.length)
-                  return value
-                } else {
-                  return null
-                }
-              })
-              .map((user) => <Row key={user.id} user={user} />)
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
-          </TableBody>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={count}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangePerRow}
+    <MuiThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className={classes.root}>
+        <Box className={classes.paper} width={500} height={80}>
+          <Grid
+            container
+            spacing={1}
+            className={classes.grid}
+            direction="row"
+            alignItems="flex-start"
+            justify="center"
+          >
+            <Grid item xs={10}>
+              <SearchBar handleQuery={handleQuery} />
+            </Grid>
+            <Grid item xs={1}>
+              <IconButton
+                aria-label="search"
+                color="secondary"
+                onClick={handleReset}
+              >
+                <RotateLeftIcon />
+              </IconButton>
+            </Grid>
+            <Grid item xs={1}>
+              <IconButton
+                aria-label="search"
+                color="primary"
+                onClick={handleOpen}
+              >
+                <AddIcon />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </Box>
+        <Box className={classes.tablePaper}>
+          <Table size="small" className={classes.table}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Shopify ID</TableCell>
+                <TableCell>First Name</TableCell>
+                <TableCell>Last Name</TableCell>
+                <TableCell>email</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {userList
+                .filter((value) => {
+                  if (searchValue === '') {
+                    return value
+                  } else if (
+                    value.first_name
+                      .toLowerCase()
+                      .includes(searchValue.toLowerCase()) ||
+                    value.last_name
+                      .toLowerCase()
+                      .includes(searchValue.toLowerCase()) ||
+                    value.email
+                      .toLowerCase()
+                      .includes(searchValue.toLowerCase())
+                  ) {
+                    userLengthArray.push(value)
+                    // console.log(userLengthArray.length)
+                    // setCount(userLengthArray.length)
+                    return value
+                  } else {
+                    return null
+                  }
+                })
+                .map((user) => <Row key={user.id} user={user} />)
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
+            </TableBody>
+            <TablePagination
+              className={classes.tablePagination}
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={count}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangePerRow}
+            />
+          </Table>
+          <AddUser
+            handleOpen={handleOpen}
+            handleClose={handleClose}
+            open={open}
+            setOpen={setOpen}
           />
-        </Table>
-      </Grid>
-    </Grid>
+        </Box>
+      </div>
+    </MuiThemeProvider>
   )
 }
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignContent: 'center',
-    width: '100%',
-    marginTop: '20px'
+const theme = createMuiTheme({
+  palette: {
+    background: {
+      default: '#2F1A49'
+    }
+  }
+})
 
-    // alignContent: 'space-around'
-    // alignItems: 'center',
-    // justifyContent: 'center'
-  },
-  table: {
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    position: 'absolute',
+    top: 150,
+    left: 0,
+    right: 0,
+
+    margin: 'auto',
+    // top: '50%',
+    // left: '50%',
+    // marginTop: '150px',
+    // marginLeft: '-100px',
+    minHeight: '80vh',
     display: 'flex',
     flexDirection: 'column',
-    // width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  text: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    // alignContent: 'end',
-    alignItems: 'center',
-    marginTop: '100px'
-  },
-  loading: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignContent: 'center',
-    width: '100%',
-    marginTop: '20px'
+    textAlign: 'center',
+
+    width: '700px'
   },
   paper: {
-    position: 'absolute',
-    width: 400,
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3)
+    padding: theme.spacing(2),
+
+    marginBottom: '25px',
+    width: '100%',
+    backgroundColor: '#FAF6FD'
+  },
+  tablePaper: {
+    padding: '3px',
+    width: '100%',
+    backgroundColor: '#FAF6FD',
+    height: '100%'
+  },
+  tablePagination: {
+    overflow: 'visible',
+    width: '100%',
+    height: '100%'
+  },
+  table: {
+    width: '100%',
+    height: '100%'
   }
 }))
 

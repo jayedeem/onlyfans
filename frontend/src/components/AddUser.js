@@ -87,7 +87,6 @@ export const AddUser = ({ handleClose, open, setOpen }) => {
     }
     setLoading(true)
 
-    console.log(values.firstName, values.lastName, values.email, values.amount)
     UserServices.createUser(values.firstName, values.lastName, values.email)
       .then((res) => res)
 
@@ -112,9 +111,9 @@ export const AddUser = ({ handleClose, open, setOpen }) => {
       .catch((err) => console.log(err))
   }
 
-  if (formik.isSubmitting) {
-    return <Loading />
-  }
+  // if (formik.isSubmitting) {
+  //   return <Loading />
+  // }
   return (
     <div>
       <Modal
