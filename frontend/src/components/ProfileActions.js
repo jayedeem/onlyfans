@@ -10,6 +10,10 @@ import { useRecoilValue, selector } from 'recoil'
 import { rewardsProfileState } from './ProfileTable'
 import { menuSelectState } from '../components/ProfileForm'
 import { textInputState } from '../pages/Profile'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+
+import UserServices from '../services/user.service'
 
 function doMath({ value }, amount, { api: currentUser }) {
   switch (value) {
@@ -68,27 +72,33 @@ export const reducer = selector({
     return {
       computation,
       textValues,
-      valueToText
+      valueToText,
+      user
     }
   }
 })
 
-export const ProfileActions = () => {
-  const currentUser = useRecoilValue(rewardsProfileState)
+export const ProfileActions = ({ profileUser }) => {
+  const [currentUser, setCurrentUser] = useState({})
   const selectedOptions = useRecoilValue(menuSelectState)
   const input = useRecoilValue(textInputState)
-  const { computation, textValues: text, valueToText } = useRecoilValue(reducer)
+  const { user, computation, textValues: text, valueToText } = useRecoilValue(
+    reducer
+  )
+  const { id } = useParams()
 
-  if (!Object.keys(currentUser).length) {
-    return <Loading />
-  }
+  useEffect(() => {
+    async function retrieve() {
+      const { data } = await UserServices.getUser(id)
+      setCurrentUser(data.api)
+    }
+    retrieve()
+  }, [id])
 
   return (
     <>
-      {/* <pre>{JSON.stringify(computation, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(selectedOptions, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(input.value, null, 2)}</pre> */}
-      {/* <pre>{JSON.stringify(text, null, 2)}</pre> */}
+      {/* <pre>{JSON.stringify(currentUser, null, 2)}</pre> */}
+
       <Table aria-label="simple table">
         <TableHead>
           <TableRow>
@@ -100,12 +110,12 @@ export const ProfileActions = () => {
         <TableBody>
           <TableRow>
             <TableCell component="th" scope="row">
-              ${parseFloat(currentUser.api.amount).toFixed(2)}
+              ${parseFloat(currentUser.amount).toFixed(2)}
             </TableCell>
             <TableCell>{!input.length ? '' : valueToText}</TableCell>
             <TableCell>
               {!input.length
-                ? ` $${parseFloat(currentUser.api.amount).toFixed(2)}`
+                ? ` $${parseFloat(currentUser.amount).toFixed(2)}`
                 : computation}
             </TableCell>
           </TableRow>

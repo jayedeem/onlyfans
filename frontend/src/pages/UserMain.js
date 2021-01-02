@@ -5,7 +5,7 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { AddUser, Loading, Row, SearchBar } from '../components'
 import { useQuery } from 'react-query'
@@ -44,7 +44,7 @@ export const UsersPage = () => {
   const [searchLength, setSearchLength] = useRecoilState(searchQueryLength)
   const [isLoading, setIsLoading] = useState(false)
   const classes = useStyles()
-
+  const isMountedRef = useRef(null)
   const handleChangePage = (e, newPage) => {
     setPage(newPage)
   }
@@ -87,18 +87,24 @@ export const UsersPage = () => {
     return filtered
   }, [setUserList, setCount])
 
-  const { data: userData, isLoading: loading, error, isFetching } = useQuery(
-    'userlist',
-    retrieveUsers,
-    {
-      refetchOnWindowFocus: false
-    }
-  )
+  useEffect(() => {
+    isMountedRef.current = true
+    retrieveUsers()
+    return () => (isMountedRef.current = false)
+  }, [retrieveUsers])
 
-  if (error) {
-    // history.push('/login')
-    return <p>Something went wrong</p>
-  }
+  // const { data: userData, isLoading: loading, error, isFetching } = useQuery(
+  //   'userlist',
+  //   retrieveUsers,
+  //   {
+  //     refetchOnWindowFocus: false
+  //   }
+  // )
+
+  // if (error) {
+  //   // history.push('/login')
+  //   return <p>Something went wrong</p>
+  // }
   const handleReset = async () => {
     setIsLoading(true)
 
@@ -114,12 +120,13 @@ export const UsersPage = () => {
     setSearchValue(e.target.value)
   }
   let userLengthArray = []
-  // if (loading || isFetching || isLoading) {
-  //   return <Loading status={'Fetching Users...'} />
-  // }
+  if (isLoading) {
+    return <Loading status={'Fetching Users...'} />
+  }
   return (
     <MuiThemeProvider theme={theme}>
       <CssBaseline />
+
       <div className={classes.root}>
         <Box className={classes.paper} width={500} height={80}>
           <Grid
@@ -157,10 +164,18 @@ export const UsersPage = () => {
           <Table size="small" className={classes.table}>
             <TableHead>
               <TableRow>
-                <TableCell>Shopify ID</TableCell>
-                <TableCell>First Name</TableCell>
-                <TableCell>Last Name</TableCell>
-                <TableCell>email</TableCell>
+                <TableCell component="th" scope="row" style={{ width: '25px' }}>
+                  Shopify ID
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  First Name
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  Last Name
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  email
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -213,14 +228,6 @@ export const UsersPage = () => {
   )
 }
 
-const theme = createMuiTheme({
-  palette: {
-    background: {
-      default: '#2F1A49'
-    }
-  }
-})
-
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -250,9 +257,9 @@ const useStyles = makeStyles((theme) => ({
   },
   tablePaper: {
     padding: '3px',
-    width: '100%',
-    backgroundColor: '#FAF6FD',
-    height: '100%'
+    // width: '100%',
+    backgroundColor: '#FAF6FD'
+    // height: '100%'
   },
   tablePagination: {
     overflow: 'visible',
@@ -260,8 +267,8 @@ const useStyles = makeStyles((theme) => ({
     height: '100%'
   },
   table: {
-    width: '100%',
-    height: '100%'
+    // width: '100%',
+    // height: '100%'
   }
 }))
 
@@ -279,3 +286,11 @@ function getModalStyle() {
     transform: `translate(-${top}%, -${left}%)`
   }
 }
+
+const theme = createMuiTheme({
+  palette: {
+    background: {
+      default: '#2F1A49'
+    }
+  }
+})

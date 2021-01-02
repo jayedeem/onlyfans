@@ -12,23 +12,33 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { userCountState, pageState, searchQuery } from '../recoil'
 import { useState } from 'react'
 import { Loading } from './'
-import { SearchBar } from './'
-import SearchIcon from '@material-ui/icons/Search'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import CssBaseline from '@material-ui/core/CssBaseline'
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'flex-start',
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'space-between',
-    top: 0
+    top: 0,
+    left: 0,
+    width: '250px',
+    height: '100vh',
+    backgroundColor: 'black'
   },
   menuButton: {
     marginRight: theme.spacing(2)
   },
   title: {
     flexGrow: 1
+  },
+  toolBar: {
+    display: 'flex',
+    flexDirection: 'column',
+    marginTop: '15px'
   }
 }))
 
@@ -60,27 +70,20 @@ export const Navbar = () => {
     setToggleSearch(!toggleSearch)
   }
 
-  const handleQuery = (e) => {
-    setPage(0)
-
-    setSearchValue(e.target.value)
-  }
   if (isLoading) {
     return <Loading />
   }
   return (
-    <div>
-      <AppBar className={classes.root} position="fixed" color={'#fff'}>
-        <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            CMS
-          </Typography>
+    <AppBar className={classes.root} position="fixed">
+      <Toolbar className={classes.toolBar}>
+        <Typography variant="h6" className={classes.title}>
+          CMS
+        </Typography>
 
-          <Button onClick={handleLogout} color="inherit">
-            {userAuth ? 'Logout' : null}
-          </Button>
-        </Toolbar>
-      </AppBar>
-    </div>
+        <Button onClick={handleLogout} color="inherit">
+          {userAuth ? 'Logout' : null}
+        </Button>
+      </Toolbar>
+    </AppBar>
   )
 }

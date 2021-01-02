@@ -3,28 +3,18 @@ const mongoose = require('mongoose')
 const session = require('express-session')
 const redis = require('ioredis')
 const morgan = require('morgan')
-const RedisStore = require('connect-redis')(session)
-const { authJwt } = require('./middleware')
+const { graphqlHTTP } = require('express-graphql')
 // Middleware
+const { authJwt } = require('./middleware/')
 const dotenv = require('dotenv')
 const cors = require('cors')
-// const verify = require('./middleware/verifyToken')
-// const cookieParser = require('cookie-parser')
-const { cachedToken } = require('./middleware/')
-// // const cachedUsers = require('./middleware/cachedUsers')
-// const inSession = require('./middleware/inSession')
-// // Routes
-// const dashboardRoute = require('./routes/dashboard')
-const rewardsRouter = require('./routes/rewardify')
-// const authRoute = require('./routes/auth')
-// const test = require('./routes/test')
-// const shopRoute = require('./routes/shopRoutes')
+const schema = require('./schemas/userSchema')
 const db = require('./models/')
+const cached = require('./middleware/cached')
 dotenv.config()
 morgan('dev')
 
 const { PORT, SESSION_SECRET, NODE_ENV } = process.env
-const redisClient = redis.createClient()
 
 const port = PORT || 1337
 const Role = db.role
@@ -35,57 +25,65 @@ db.mongoose.connect(
   () => {
     try {
       console.log('connected to db')
-      initial()
     } catch (error) {
       console.log(error)
     }
   }
 )
 
-function initial() {
-  Role.estimatedDocumentCount((err, count) => {
-    if (!err && count === 0) {
-      new Role({
-        name: 'user'
-      }).save((err) => {
-        if (err) {
-          console.log('error', err)
-        }
+// function initial() {
+//   Role.estimatedDocumentCount((err, count) => {
+//     if (!err && count === 0) {
+//       new Role({
+//         name: 'user'
+//       }).save((err) => {
+//         if (err) {
+//           console.log('error', err)
+//         }
 
-        console.log("added 'user' to roles collection")
-      })
+//         console.log("added 'user' to roles collection")
+//       })
 
-      new Role({
-        name: 'admin'
-      }).save((err) => {
-        if (err) {
-          console.log('error', err)
-        }
+//       new Role({
+//         name: 'admin'
+//       }).save((err) => {
+//         if (err) {
+//           console.log('error', err)
+//         }
 
-        console.log("added 'admin' to roles collection")
-      })
+//         console.log("added 'admin' to roles collection")
+//       })
 
-      new Role({
-        name: 'overlord'
-      }).save((err) => {
-        if (err) {
-          console.log('error', err)
-        }
+//       new Role({
+//         name: 'overlord'
+//       }).save((err) => {
+//         if (err) {
+//           console.log('error', err)
+//         }
 
-        console.log("added 'overlord' to roles collection")
-      })
-    }
-  })
-}
+//         console.log("added 'overlord' to roles collection")
+//       })
+//     }
+//   })
+// }
 const app = express()
-// app.use(cors)
 app.use(express.json())
+app.use(authJwt.verifyToken)
+app.use(cached)
+
+app.use(
+  '/graphql',
+  graphqlHTTP({
+    schema,
+    graphiql: true
+  })
+)
 
 // app.get('/test/api', test)
-require('./routes/auth')(app)
-require('./routes/user')(app)
-require('./routes/shopify')(app)
-require('./routes/dashboard')(app)
-require('./routes/rewardify')(app)
+// require('./routes/auth')(app)
+// require('./routes/user')(app)
+// require('./routes/shopify')(app)
+// require('./routes/dashboard')(app)
+// require('./routes/rewardify')(app)
 
 app.listen(port, () => console.log(`Listening on port ${port}`))

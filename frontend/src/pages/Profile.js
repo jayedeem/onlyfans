@@ -10,7 +10,8 @@ import AuthService from '../services/auth.service'
 import { atom, useRecoilState } from 'recoil'
 import UserServices from '../services/user.service'
 import { clickState } from '../components/ProfileForm'
-
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import CssBaseline from '@material-ui/core/CssBaseline'
 export const textInputState = atom({
   key: 'textinput',
   default: ''
@@ -84,26 +85,31 @@ export const ProfilePage = () => {
   }
 
   return (
-    <Container component={Paper} className={classes.table}>
-      <ProfileTable />
-      <ProfileActions />
-      <ProfileForm handleSubmit={handleSubmit} />
-      {status === 'error' && (
-        <Alert variant="filled" severity="error">
-          Cannot submit empty values
-        </Alert>
-      )}
-    </Container>
+    <MuiThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container component={Paper} className={classes.table}>
+        <ProfileTable profileUser={profileUser} />
+        <ProfileActions profileUser={profileUser} />
+        <ProfileForm handleSubmit={handleSubmit} />
+        {status === 'error' && (
+          <Alert variant="filled" severity="error">
+            Cannot submit empty values
+          </Alert>
+        )}
+      </Container>
+    </MuiThemeProvider>
   )
 }
+const theme = createMuiTheme({
+  palette: {
+    background: {
+      default: '#2F1A49'
+    }
+  }
+})
 
 const useStyles = makeStyles((theme) => ({
   table: {
-    display: 'flex',
-    alignContent: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
     height: '400px',
     maxWidth: '400px',
     marginTop: '300px'

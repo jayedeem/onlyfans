@@ -4,7 +4,9 @@ import {
   MenuItem,
   Select,
   TextField,
-  makeStyles
+  makeStyles,
+  Box,
+  Grid
 } from '@material-ui/core'
 import { atom, useRecoilState, useRecoilValue } from 'recoil'
 import { textInputState } from '../pages/Profile'
@@ -48,24 +50,22 @@ const Logger = () => {
   const [selectedInput, setSelectedInput] = useState('Disabled')
   const [menuValue, setMenuValue] = useRecoilState(menuSelectState)
   const formik = useFormikContext()
+
   useEffect(() => {
-    handleSelect(formik.values)
-  }, [formik.values])
+    const handleSelect = () => {
+      console.log('handle', formik.values.selector)
+      if (formik.values.selector === 'undefined') {
+        return null
+      }
+      if (formik.values.selector === 'zero') {
+        setSelectedInput('Disabled')
 
-  const handleSelect = () => {
-    console.log('handle', formik.values.selector)
-    if (formik.values.selector === 'undefined') {
-      return null
-    }
-    if (formik.values.selector === 'zero') {
-      alert('Zero')
-      setSelectedInput('Disabled')
-
+        setMenuValue(formik.values.amount)
+      }
+      setSelectedInput('Amount')
       setMenuValue(formik.values.amount)
     }
-    setSelectedInput('Amount')
-    setMenuValue(formik.values.amount)
-  }
+  }, [formik.values, setMenuValue])
 
   return null
 }
@@ -115,52 +115,66 @@ export const ProfileForm = ({ handleSubmit }) => {
         isSubmitting
       }) => (
         <form
-          className={classes.form}
+          // className={classes.form}
           onSubmit={(e) => {
             e.preventDefault()
             handleSubmit()
           }}
         >
           <Logger />
-          {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
-          <Field
-            name="amount"
-            as={TextField}
-            className={classes.field}
-            style={{ marginRight: '15px', width: '85px' }}
-            // placeholder={values.selector === 'zero' ? 'Disabled' : 'Amount'}
-            // disabled={values.selector === 'zero'}
-            // value={formik.values.amount}
-            // inputRef={textRef}
-            onChange={handleChange}
-            label="amount"
-            defaultValue=""
-            // inputRef
 
-            type="number"
-          />
+          <Grid
+            container
+            spacing={1}
+            direction="row"
+            alignItems="center"
+            justify="center"
+            alignContent="center"
+          >
+            <Grid item xs={8}>
+              <Field
+                name="amount"
+                as={TextField}
+                // className={classes.field}
+                // style={{ marginRight: '15px', width: '85px' }}
+                // placeholder={values.selector === 'zero' ? 'Disabled' : 'Amount'}
+                // disabled={values.selector === 'zero'}
+                // value={formik.values.amount}
+                // inputRef={textRef}
+                onChange={handleChange}
+                label="amount"
+                defaultValue=""
+                // inputRef
 
-          <Select
-            style={{ marginRight: '25px' }}
-            labelId="select-label"
-            id="select-input"
-            name="selector"
-            defaultValue={''}
-            onChange={handleChange}
-          >
-            <MenuItem value="add">Add</MenuItem>
-            <MenuItem value="remove">Remove</MenuItem>
-            <MenuItem value="zero">Reset</MenuItem>
-          </Select>
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            // disabled={formik.isSubmitting}
-          >
-            go
-            {/* {formik.isSubmitting ? 'Loading' : 'Submit'} */}
-          </Button>
+                type="number"
+              />
+            </Grid>
+            <Grid item xs={2}>
+              <Select
+                // style={{ marginRight: '25px' }}
+                labelId="select-label"
+                id="select-input"
+                name="selector"
+                defaultValue={''}
+                onChange={handleChange}
+              >
+                <MenuItem value="add">Add</MenuItem>
+                <MenuItem value="remove">Remove</MenuItem>
+                <MenuItem value="zero">Reset</MenuItem>
+              </Select>
+            </Grid>
+            <Grid item xs={2}>
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                // disabled={formik.isSubmitting}
+              >
+                go
+                {/* {formik.isSubmitting ? 'Loading' : 'Submit'} */}
+              </Button>
+            </Grid>
+          </Grid>
         </form>
       )}
     </Formik>

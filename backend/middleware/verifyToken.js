@@ -5,20 +5,29 @@ const User = db.user
 const Role = db.role
 
 verifyToken = (req, res, next) => {
-  // console.log('verifying token', req.headers)
-  let token = req.headers['x-access-token']
-
-  if (!token) {
-    return res.status(403).send({ message: 'No token provided!' })
+  const authHeader = req.get('Authorization')
+  if (!authHeader) {
+    req.isAuth = false
+    return next()
   }
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(401).send({ message: 'Unauthorized!' })
-    }
-    req.userId = decoded.id
-    next()
-  })
+  const token = authHeader.split(' ')[1]
+  if (!token || token === '') {
+    req.isAuth = false
+    return next()
+  }
+  let decodedToken
+  try {
+    decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+  } catch (error) {
+    req.isAuth = false
+    return next()
+  }
+  if (!decodedToken) {
+    req.isAdmin = false
+    return next()
+  }
+  ;(req.isAuth = true), (req.userId = decodedToken.userID)
+  return next()
 }
 
 isAdmin = (req, res, next) => {

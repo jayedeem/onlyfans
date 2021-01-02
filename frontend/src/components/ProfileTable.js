@@ -8,7 +8,7 @@ import { profileState } from '../pages/Profile'
 import { useRecoilValue, useRecoilState, atom } from 'recoil'
 import { useLocation } from 'react-router-dom'
 import { useQuery } from 'react-query'
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 const useStyles = makeStyles((theme) => ({
   table: {
     display: 'flex',
@@ -60,42 +60,54 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const rewardsProfileState = atom({
-  key: 'rewardsstate',
+  key: 'rewardsState',
   default: []
 })
 
-export const ProfileTable = () => {
+export const ProfileTable = ({ profileUser }) => {
   const {
     state: { user }
   } = useLocation()
 
-  const [_, setRewardsData] = useRecoilState(rewardsProfileState)
+  const [rewardsData, setRewardsData] = useRecoilState(rewardsProfileState)
   const profileValue = useRecoilValue(profileState)
   const classes = useStyles()
 
-  const { data, isLoading, error, isFetching } = useQuery(
-    'profile',
-    async () => {
-      const res = await UserServices.getUser(user.id)
-      setRewardsData(res.data)
-      return res.data
-    },
-    { refetchOnWindowFocus: false }
-  )
+  useEffect(() => {
+    console.log(user)
+  }, [user])
 
-  if (isLoading || isFetching) {
-    return <Loading />
-  }
+  // useEffect(() => {
+  //   async function retrieve() {
+  //     const res = await UserServices.getUser(user.id)
+  //     setRewardsData(res)
+  //   }
+  //   retrieve()
+  // }, [setRewardsData, user.id])
 
-  if (error) {
-    return <p>Error happened</p>
-  }
+  // const { data, isLoading, error, isFetching } = useQuery(
+  //   'profile',
+  //   async () => {
+  //     const res = await UserServices.getUser(user.id)
+  //     setRewardsData(res.data)
+  //     return res.data
+  //   },
+  //   { refetchOnWindowFocus: true }
+  // )
+
+  // if (isLoading || isFetching) {
+  //   return <Loading />
+  // }
+
+  // if (error) {
+  //   return <p>Error happened</p>
+  // }
 
   console.log(profileValue)
 
   return (
     <div className={classes.avatar}>
-      {Object.values(profileValue).map((item) => {
+      {Object.values(profileUser).map((item) => {
         return (
           <Fragment key={item.email}>
             <Avatar className={classes.purple} style={{ marginRight: '10px' }}>
@@ -114,7 +126,6 @@ export const ProfileTable = () => {
           </Fragment>
         )
       })}
-      {/* <pre>{JSON.stringify(Object.values(profileValue), null, 2)}</pre> */}
     </div>
   )
 }
