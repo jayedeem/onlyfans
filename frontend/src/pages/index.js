@@ -1,3 +1,4 @@
-export { LoginPage } from './LoginPage'
-export { UsersPage } from './UsersPage'
 export { PanelPage } from './PanelPage'
+export { ProfilePage } from './Profile'
+export { UsersPage } from './UserMain'
+export { LoginPage } from './LoginPage'

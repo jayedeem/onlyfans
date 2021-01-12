@@ -25,9 +25,11 @@ module.exports = async (req, res, next) => {
     do {
       const customers = await shopify.customer.list(params)
       results.push(customers)
+      console.log(customers.length)
       params = customers.nextPageParameters
     } while (params !== undefined)
     const userApi = results.flat(1)
+
     cacheData = {
       userApi
     }
@@ -38,5 +40,5 @@ module.exports = async (req, res, next) => {
     await redisClient.set('users', userData, 'ex', 3600)
 
     return next()
-  })().catch(console.error)
+  })().catch((err) => console.log(err))
 }

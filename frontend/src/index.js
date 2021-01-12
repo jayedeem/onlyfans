@@ -1,11 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
-import App from './App'
-// import { BrowserRouter as Router } from 'react-router-dom'
+import { App } from './App'
+import { Wrapper } from './utils/Wrapper'
+
 ReactDOM.render(
-  <React.StrictMode>
+  <Wrapper>
     <App />
-  </React.StrictMode>,
+  </Wrapper>,
   document.getElementById('root')
 )

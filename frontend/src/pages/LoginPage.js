@@ -1,63 +1,47 @@
-import { useEffect } from 'react'
 import Container from '@material-ui/core/Container'
 import { makeStyles } from '@material-ui/core/styles'
+import { useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
+import AuthService from '../services/auth.service'
 import { LoginForm } from '../components'
-import axios from 'axios'
-import { Redirect, useHistory } from 'react-router-dom'
-
-export const LoginPage = ({ user, setUser }) => {
-  const classes = useStyles()
-
-  const history = useHistory()
-
-  useEffect(() => {
-    if (localStorage.getItem('isAuth')) {
-      return history.push('/users')
-    }
-  }, [history])
-
-  const loginSubmit = async ({ email, password }) => {
-    try {
-      const { data } = await axios.post(
-        '/auth/login',
-        {
-          email: email,
-          password: password
-        },
-        { withCredentials: true }
-      )
-      console.log(data)
-      localStorage.setItem('isAuth', data.status.isLoggedIn)
-      setUser({
-        isLoggedIn: data.status.isLoggedIn,
-        name: data.status.name,
-        role: data.status.role
-      })
-
-      history.push('/users')
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  return (
-    <Container component="main" className={classes.container} maxWidth="xs">
-      <h2>Login</h2>
-      <LoginForm loginSubmit={loginSubmit} />
-    </Container>
-  )
-}
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    padding: theme.spacing(3),
     display: 'flex',
-    flexDirection: 'column',
+    alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '85vh',
-    '& h2': {
-      marginBottom: '20px'
-    }
+    flexDirection: 'column',
+    height: '80vh',
+    maxWidth: '500px'
   }
 }))
+
+const required = (value) => {
+  if (!value) {
+    return (
+      <div className="alert alert-danger" role="alert">
+        This field is required!
+      </div>
+    )
+  }
+}
+
+export const LoginPage = ({ setRedirectToReferrer }) => {
+  const history = useHistory()
+
+  useEffect(() => {
+    const user = AuthService.getCurrentUser()
+    if (user) {
+      return history.push('/')
+    }
+  }, [history])
+
+  const classes = useStyles()
+
+  return (
+    <Container className={classes.container}>
+      <LoginForm />
+    </Container>
+  )
+}

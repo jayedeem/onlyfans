@@ -1,13 +1,10 @@
-export { Main } from './Main'
-
+export { Loading } from './Loading'
 export { LoginForm } from './LoginForm'
-
-export { UserTable } from './UserTable'
-
-export { SearchBar } from './SearchBar'
-
-export { Menu } from './Menu'
-
-export { SelectOptions } from './Select'
-
+export { Paginate } from './Pagination'
 export { Row } from './Row'
+export { SearchBar } from './SearchBar'
+export { ProfileTable } from './ProfileTable'
+export { ProfileActions } from './ProfileActions'
+export { ProfileForm } from './ProfileForm'
+export { Navbar } from './Navbar'
+export { AddUser } from './AddUser'

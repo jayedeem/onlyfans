@@ -1,11 +1,15 @@
 import TextField from '@material-ui/core/TextField'
 
-export const SearchBar = ({ handleChange }) => {
+export const SearchBar = ({ handleQuery }) => {
   return (
     <TextField
-      style={{ width: '500px', marginBottom: '20px' }}
+      // style={{
+      //   width: '200px'
+      // }}
       placeholder="Search..."
-      onChange={handleChange}
+      onChange={handleQuery}
+      color="primary"
+      fullWidth
     />
   )
 }

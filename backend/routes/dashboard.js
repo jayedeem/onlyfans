@@ -1,23 +1,29 @@
-const express = require('express')
-const axios = require('axios')
-const router = express.Router()
 const redisClient = require('../db/redis')
+const { authJwt } = require('../middleware')
+const cors = require('./cors')
 
-router.get('/', async (req, res) => {
-  // Send data to frontend
+module.exports = function (app) {
+  app.use(cors.cors, (req, res, next) => {
+    next()
+  })
+  // Pull all users
+  app.get(
+    '/api/dashboard',
+    cors.cors,
+    authJwt.verifyToken,
+    async (req, res, next) => {
+      try {
+        const cacheData = await redisClient.get('users')
 
-  try {
-    const cacheData = await redisClient.get('users')
-
-    const usersApi = JSON.parse(cacheData)
-    return res.send(usersApi)
-  } catch (error) {
-    return res.status(500).json({
-      err: {
-        msg: 'Something went wrong'
+        const usersApi = JSON.parse(cacheData)
+        return res.json(usersApi)
+      } catch (error) {
+        return res.status(500).json({
+          err: {
+            msg: 'Could not establish a connection'
+          }
+        })
       }
-    })
-  }
-})
-
-module.exports = router
+    }
+  )
+}

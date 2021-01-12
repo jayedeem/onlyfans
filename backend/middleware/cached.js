@@ -1,6 +1,6 @@
 const axios = require('axios')
 const redisClient = require('../db/redis')
-
+const { authJwt } = require('../middleware')
 let cacheTime
 
 let cacheToken

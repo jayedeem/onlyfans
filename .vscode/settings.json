@@ -2,8 +2,10 @@
   "cSpell.ignoreWords": [
     "addcredit",
     "controller",
+    "formik",
     "replacecredit",
     "resetcredit",
-    "rewardify"
+    "rewardify",
+    "userliststate"
   ]
 }
